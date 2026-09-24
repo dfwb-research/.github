@@ -1,0 +1,53 @@
+name: New dataset protocol
+description: Propose protocols (splits and labels) for a dataset that has none yet.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        DFWB never distributes media. A protocol is identifiers, labels and splits only, and each
+        dataset's terms decide whether even those may be published. Do not attach any media.
+  - type: input
+    id: dataset
+    attributes:
+      label: Dataset name
+    validations:
+      required: true
+  - type: input
+    id: release
+    attributes:
+      label: Upstream release or version
+      description: Which release the keys would refer to.
+    validations:
+      required: true
+  - type: input
+    id: homepage
+    attributes:
+      label: Homepage or paper
+    validations:
+      required: true
+  - type: input
+    id: terms
+    attributes:
+      label: Link to the access terms or licence
+    validations:
+      required: true
+  - type: textarea
+    id: official-splits
+    attributes:
+      label: Official splits
+      description: Does the dataset publish official train/val/test lists? Where?
+    validations:
+      required: true
+  - type: textarea
+    id: structure
+    attributes:
+      label: Structure
+      description: Generation methods, compression variants, identities, real/fake pairing.
+  - type: checkboxes
+    id: media
+    attributes:
+      label: Media
+      options:
+        - label: I have not attached, and will not attach, any dataset media.
+          required: true

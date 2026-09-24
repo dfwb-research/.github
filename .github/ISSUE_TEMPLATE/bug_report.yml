@@ -1,0 +1,44 @@
+name: Bug report
+description: Something in a dfwb-research package does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please never attach dataset media (videos, frames, audio) to an issue.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: The exact commands or a minimal script. The toyfake dataset is ideal for this.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `dfwb doctor --json`
+      description: Shows versions, installed extras and plugins. Remove any paths you consider private.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error output
+      description: Re-run with `--debug` and paste the full traceback.
+      render: text
+  - type: checkboxes
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - label: I am on Linux (the only supported and tested OS).
+          required: false

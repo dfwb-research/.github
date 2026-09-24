@@ -1,0 +1,47 @@
+name: New zoo adapter
+description: Propose wrapping a published detector so it can be scored with `dfwb score`.
+labels: [enhancement]
+body:
+  - type: input
+    id: upstream
+    attributes:
+      label: Upstream repository and commit
+      description: e.g. https://github.com/org/repo at a 40-character commit SHA.
+    validations:
+      required: true
+  - type: input
+    id: paper
+    attributes:
+      label: Paper
+    validations:
+      required: true
+  - type: input
+    id: code-license
+    attributes:
+      label: Code licence (SPDX)
+    validations:
+      required: true
+  - type: input
+    id: weights-license
+    attributes:
+      label: Weights licence
+    validations:
+      required: true
+  - type: input
+    id: weights-url
+    attributes:
+      label: Weights URL
+    validations:
+      required: true
+  - type: textarea
+    id: input
+    attributes:
+      label: Input the detector expects
+      description: Face crop or full frame, crop scale, resolution, frames per clip, normalisation.
+    validations:
+      required: true
+  - type: textarea
+    id: reported
+    attributes:
+      label: Numbers reported by the paper
+      description: Protocol, split, metric, value and the table they come from.
