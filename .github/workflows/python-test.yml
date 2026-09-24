@@ -1,0 +1,101 @@
+# Reusable: pytest matrix (Python x torch x OS) with coverage, for a uv project.
+# Callers: uses: dfwb-research/.github/.github/workflows/python-test.yml@v1
+# The caller's pyproject.toml configures pytest and coverage ([tool.coverage.run] source).
+name: python-test
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: Directory that holds pyproject.toml.
+        type: string
+        default: "."
+      python-versions:
+        description: JSON list of Python versions.
+        type: string
+        default: '["3.12", "3.14"]'
+      torch-versions:
+        description: JSON list of torch versions (CPU wheels); [] for no torch.
+        type: string
+        default: "[]"
+      extras:
+        description: Space-separated extras to install, e.g. "train preprocess".
+        type: string
+        default: ""
+      os:
+        description: JSON list of runner images.
+        type: string
+        default: '["ubuntu-latest"]'
+      pytest-args:
+        description: Extra pytest arguments (shell-quoted).
+        type: string
+        default: ""
+      coverage-min:
+        description: Fail if total coverage is below this percentage.
+        type: number
+        default: 0
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    name: pytest (py${{ matrix.python }}, torch ${{ matrix.torch }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(inputs.os) }}
+        python: ${{ fromJSON(inputs.python-versions) }}
+        torch: ${{ fromJSON(inputs.torch-versions == '[]' && '["none"]' || inputs.torch-versions) }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          python-version: ${{ matrix.python }}
+          working-directory: ${{ inputs.working-directory }}
+      - name: Sync the locked environment
+        env:
+          EXTRAS: ${{ inputs.extras }}
+        run: |
+          args=()
+          for extra in $EXTRAS; do args+=(--extra "$extra"); done
+          uv sync --locked "${args[@]}"
+      - name: Install the torch CPU wheel
+        if: matrix.torch != 'none'
+        env:
+          TORCH: ${{ matrix.torch }}
+        run: uv pip install "torch==${TORCH}.*" --index-url https://download.pytorch.org/whl/cpu
+      - name: pytest
+        env:
+          PYTEST_ARGS: ${{ inputs.pytest-args }}
+          COVERAGE_MIN: ${{ inputs.coverage-min }}
+        run: |
+          eval "set -- $PYTEST_ARGS"
+          uv run --no-sync pytest "$@" --cov --cov-report=term-missing \
+            --cov-report=xml:coverage.xml --cov-fail-under="$COVERAGE_MIN"
+      - name: Upload the coverage report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage-${{ matrix.os }}-py${{ matrix.python }}-torch-${{ matrix.torch }}
+          path: ${{ inputs.working-directory }}/coverage.xml
+          if-no-files-found: ignore
+
+  test:
+    name: test
+    if: always()
+    needs: pytest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every matrix job passed
+        env:
+          RESULT: ${{ needs.pytest.result }}
+        run: |
+          echo "pytest matrix: $RESULT"
+          [ "$RESULT" = "success" ]

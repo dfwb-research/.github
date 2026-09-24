@@ -1,0 +1,60 @@
+# Reusable: build the sdist and wheel with uv, check them with twine, upload them as an artifact.
+# Publishing is NOT done here: PyPI trusted publishing cannot run from a reusable workflow, so
+# each repository's release.yml has its own top-level publish job that downloads this artifact.
+name: python-build
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: Directory that holds pyproject.toml (or the uv workspace root).
+        type: string
+        default: "."
+      package:
+        description: uv workspace member to build; empty builds the project itself.
+        type: string
+        default: ""
+    outputs:
+      artifact-name:
+        description: Name of the uploaded artifact holding dist/.
+        value: ${{ jobs.build.outputs.artifact-name }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: ${{ steps.name.outputs.artifact-name }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          python-version: "3.12"
+          working-directory: ${{ inputs.working-directory }}
+      - name: Artifact name
+        id: name
+        env:
+          PACKAGE: ${{ inputs.package }}
+        run: echo "artifact-name=dist${PACKAGE:+-$PACKAGE}" >> "$GITHUB_OUTPUT"
+      - name: uv build
+        env:
+          PACKAGE: ${{ inputs.package }}
+        run: |
+          args=()
+          if [ -n "$PACKAGE" ]; then args+=(--package "$PACKAGE"); fi
+          uv build "${args[@]}" --out-dir dist
+      - name: twine check
+        run: uv tool run --from "twine>=7.0.0" twine check --strict dist/*
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ steps.name.outputs.artifact-name }}
+          path: ${{ inputs.working-directory }}/dist/
+          if-no-files-found: error
