@@ -14,7 +14,10 @@ def test_committed_data_files_parse() -> None:
         "dfwb-protocols",
         "dfwb-torch",
     ]
-    assert data.datasets() == []
+    datasets = data.datasets()
+    assert [d.name for d in datasets] == sorted((d.name for d in datasets), key=str.casefold)
+    assert all(d.status == "in preparation" for d in datasets)
+    assert all(d.terms.startswith("https://") for d in datasets)
     assert data.detectors() == []
     assert data.load_state().status_verified
 

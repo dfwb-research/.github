@@ -22,7 +22,28 @@ The first releases are in preparation. Each repository opens with its v0.1 relea
 ### Datasets and detectors
 
 <!-- TABLES:START -->
-The dataset and detector tables are populating with v0.1.
+| Dataset | Modality | Protocol | Owner's terms | Status |
+|---|---|---|---|---|
+| AV-Deepfake1M++ | audio-visual | v0.1.0 | [terms](https://github.com/ControlNet/AV-Deepfake1M/blob/master/eula.pdf) | in preparation |
+| Celeb-DF v1 | video | v0.1.0 | [terms](https://github.com/yuezunli/celeb-deepfakeforensics) | in preparation |
+| Celeb-DF v2 | video | v0.1.0 | [terms](https://github.com/yuezunli/celeb-deepfakeforensics) | in preparation |
+| Celeb-DF v3 | video | v0.1.0 | [terms](https://github.com/OUC-VAS/Celeb-DF-PP) | in preparation |
+| DeeperForensics-1.0 | video | v0.1.0 | [terms](https://github.com/EndlessSora/DeeperForensics-1.0/raw/master/dataset/Terms_of_Use.pdf) | in preparation |
+| DeepFakeDetection | video | v0.1.0 | [terms](https://github.com/ondyari/FaceForensics) | in preparation |
+| DeepSpeak v1 | audio-visual | v0.1.0 | [terms](https://huggingface.co/datasets/faridlab/deepspeak_v1) | in preparation |
+| DeepSpeak v2 | audio-visual | v0.1.0 | [terms](https://huggingface.co/datasets/faridlab/deepspeak_v2) | in preparation |
+| DFDC | video | v0.1.0 | [terms](https://www.kaggle.com/c/deepfake-detection-challenge/rules) | in preparation |
+| DFDC Preview | video | v0.1.0 | [terms](https://deepfakedetectionchallenge.ai) | in preparation |
+| DFDM | video | v0.1.0 | [terms](https://github.com/shanface33/Deepfake_Model_Attribution) | in preparation |
+| FaceForensics++ | video | v0.1.0 | [terms](https://github.com/ondyari/FaceForensics) | in preparation |
+| FakeAVCeleb | audio-visual | v0.1.0 | [terms](https://sites.google.com/view/fakeavcelebdash-lab/license) | in preparation |
+| FFIW-10K | video | v0.1.0 | [terms](https://github.com/tfzhou/FFIW) | in preparation |
+| IDForge | audio-visual | v0.1.0 | [terms](https://github.com/xyyandxyy/IDForge) | in preparation |
+| KoDF | video | v0.1.0 | [terms](https://github.com/deepbrainai-research/kodf) | in preparation |
+| LAV-DF | audio-visual | v0.1.0 | [terms](https://github.com/ControlNet/LAV-DF/blob/master/TERMS_AND_CONDITIONS.md) | in preparation |
+| PolyGlotFake | audio-visual | v0.1.0 | [terms](https://github.com/tobuta/PolyGlotFake) | in preparation |
+| TalkingHeadBench | audio-visual | v0.1.0 | [terms](https://huggingface.co/datasets/luchaoqi/TalkingHeadBench) | in preparation |
+| WildDeepfake | video | v0.1.0 | [terms](https://github.com/xingjunm/wild-deepfake) | in preparation |
 <!-- TABLES:END -->
 
 ### Cite this work

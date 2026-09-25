@@ -6,4 +6,104 @@
 #     protocol_version: "1.0"       # the dfwb-protocols version that defines the splits
 #     terms: https://example.org/   # the owner's access terms
 #     status: released              # released | in preparation
-datasets: []
+datasets:
+  - name: AV-Deepfake1M++
+    modality: audio-visual
+    protocol_version: "0.1.0"
+    terms: https://github.com/ControlNet/AV-Deepfake1M/blob/master/eula.pdf
+    status: in preparation
+  - name: Celeb-DF v1
+    modality: video
+    protocol_version: "0.1.0"
+    terms: https://github.com/yuezunli/celeb-deepfakeforensics
+    status: in preparation
+  - name: Celeb-DF v2
+    modality: video
+    protocol_version: "0.1.0"
+    terms: https://github.com/yuezunli/celeb-deepfakeforensics
+    status: in preparation
+  - name: Celeb-DF v3
+    modality: video
+    protocol_version: "0.1.0"
+    terms: https://github.com/OUC-VAS/Celeb-DF-PP
+    status: in preparation
+  - name: DeeperForensics-1.0
+    modality: video
+    protocol_version: "0.1.0"
+    terms: https://github.com/EndlessSora/DeeperForensics-1.0/raw/master/dataset/Terms_of_Use.pdf
+    status: in preparation
+  - name: DeepFakeDetection
+    modality: video
+    protocol_version: "0.1.0"
+    terms: https://github.com/ondyari/FaceForensics
+    status: in preparation
+  - name: DeepSpeak v1
+    modality: audio-visual
+    protocol_version: "0.1.0"
+    terms: https://huggingface.co/datasets/faridlab/deepspeak_v1
+    status: in preparation
+  - name: DeepSpeak v2
+    modality: audio-visual
+    protocol_version: "0.1.0"
+    terms: https://huggingface.co/datasets/faridlab/deepspeak_v2
+    status: in preparation
+  - name: DFDC
+    modality: video
+    protocol_version: "0.1.0"
+    terms: https://www.kaggle.com/c/deepfake-detection-challenge/rules
+    status: in preparation
+  - name: DFDC Preview
+    modality: video
+    protocol_version: "0.1.0"
+    terms: https://deepfakedetectionchallenge.ai
+    status: in preparation
+  - name: DFDM
+    modality: video
+    protocol_version: "0.1.0"
+    terms: https://github.com/shanface33/Deepfake_Model_Attribution
+    status: in preparation
+  - name: FaceForensics++
+    modality: video
+    protocol_version: "0.1.0"
+    terms: https://github.com/ondyari/FaceForensics
+    status: in preparation
+  - name: FakeAVCeleb
+    modality: audio-visual
+    protocol_version: "0.1.0"
+    terms: https://sites.google.com/view/fakeavcelebdash-lab/license
+    status: in preparation
+  - name: FFIW-10K
+    modality: video
+    protocol_version: "0.1.0"
+    terms: https://github.com/tfzhou/FFIW
+    status: in preparation
+  - name: IDForge
+    modality: audio-visual
+    protocol_version: "0.1.0"
+    terms: https://github.com/xyyandxyy/IDForge
+    status: in preparation
+  - name: KoDF
+    modality: video
+    protocol_version: "0.1.0"
+    terms: https://github.com/deepbrainai-research/kodf
+    status: in preparation
+  - name: LAV-DF
+    modality: audio-visual
+    protocol_version: "0.1.0"
+    terms: https://github.com/ControlNet/LAV-DF/blob/master/TERMS_AND_CONDITIONS.md
+    status: in preparation
+  - name: PolyGlotFake
+    modality: audio-visual
+    protocol_version: "0.1.0"
+    terms: https://github.com/tobuta/PolyGlotFake
+    status: in preparation
+  - name: TalkingHeadBench
+    modality: audio-visual
+    protocol_version: "0.1.0"
+    terms: https://huggingface.co/datasets/luchaoqi/TalkingHeadBench
+    status: in preparation
+  - name: WildDeepfake
+    modality: video
+    protocol_version: "0.1.0"
+    terms: https://github.com/xingjunm/wild-deepfake
+    status: in preparation
