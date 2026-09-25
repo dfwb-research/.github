@@ -36,6 +36,11 @@ def picture(base: str, alt: str, *, width: int | None = None) -> str:
     )
 
 
+def card_gaps(count: int) -> list[int]:
+    """Every card but the last carries the gap, so the row is exactly as wide as the hero."""
+    return [art.CARD_GAP] * (count - 1) + [0] * min(count, 1)
+
+
 def build_images(state: data.State) -> tuple[dict[Path, str], Ledger]:
     ledger = Ledger()
     out: dict[Path, str] = {}
@@ -44,10 +49,10 @@ def build_images(state: data.State) -> tuple[dict[Path, str], Ledger]:
         out[ASSETS / f"hero-{name}.svg"] = art.hero(
             TOKENS, theme, art.HERO_WIDE, ledger, f"hero-{name}.svg"
         )
-        for package in packages:
+        for package, gap in zip(packages, card_gaps(len(packages)), strict=True):
             rel = f"{package.repo}-{name}.svg"
             live = state.live.get(package.repo, data.Live())
-            out[ASSETS / rel] = art.package_card(TOKENS, theme, package, live, ledger, rel)
+            out[ASSETS / rel] = art.package_card(TOKENS, theme, package, live, ledger, rel, gap=gap)
         out[ASSETS / f"maintainer-{name}.svg"] = art.maintainer_card(
             TOKENS, theme, ledger, f"maintainer-{name}.svg"
         )
@@ -60,13 +65,14 @@ def build_images(state: data.State) -> tuple[dict[Path, str], Ledger]:
 
 def packages_block(state: data.State) -> str:
     cards = []
-    for package in data.packages():
+    packages = data.packages()
+    for package, gap in zip(packages, card_gaps(len(packages)), strict=True):
         live = state.live.get(package.repo, data.Live())
         image = picture(
             f"assets/{package.repo}",
             f"{package.repo}: {package.summary}"
             + (f" Version {live.version}." if live.released else " v0.1 in preparation."),
-            width=264,
+            width=round(art.CARD_W + gap),
         )
         # A card links to its repository only once the repository is public and released.
         cards.append(f'<a href="{ORG}/{package.repo}">{image}</a>' if live.released else image)
@@ -76,7 +82,8 @@ def packages_block(state: data.State) -> str:
         if not released
         else "Cards link to each released repository; the rest open with their v0.1 release."
     )
-    return lead + "\n\n<p>\n" + "\n".join(cards) + "\n</p>"
+    # No whitespace between the cards: the gap is in the images, not a font-dependent space.
+    return lead + "\n\n<p>\n" + "".join(cards) + "\n</p>"
 
 
 def tables_block() -> str:

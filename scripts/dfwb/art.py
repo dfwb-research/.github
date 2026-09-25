@@ -94,9 +94,13 @@ class HeroLayout:
     tagline_y: float
 
 
+CARD_W, CARD_H = 264, 272
+# The package cards sit in one row, each but the last carrying this gap as a transparent margin.
+CARD_GAP = 8
 # One wide hero for every screen. GitHub replaces the whole media query of any <picture> source
-# that mentions prefers-color-scheme, so a phone-width variant would also show on desktop.
-HERO_WIDE = HeroLayout(880, 320, 40, 44, 108, 19, 144)
+# that mentions prefers-color-scheme, so a phone-width variant would also show on desktop. It is
+# exactly as wide as the row of three cards, so the two share both edges.
+HERO_WIDE = HeroLayout(3 * CARD_W + 2 * CARD_GAP, 320, 40, 44, 108, 19, 144)
 
 
 def hero(tokens: Tokens, theme: Theme, layout: HeroLayout, ledger: Ledger, asset: str) -> str:
@@ -171,16 +175,20 @@ def hero(tokens: Tokens, theme: Theme, layout: HeroLayout, ledger: Ledger, asset
     )
 
 
-CARD_W, CARD_H = 264, 272
-
-
 def package_card(
-    tokens: Tokens, theme: Theme, package: data.Package, live: data.Live, ledger: Ledger, asset: str
+    tokens: Tokens,
+    theme: Theme,
+    package: data.Package,
+    live: data.Live,
+    ledger: Ledger,
+    asset: str,
+    *,
+    gap: float = 0,
 ) -> str:
+    """One package card; ``gap`` adds a transparent right margin that spaces it from the next."""
     f = tokens.fonts
-    c = Canvas(
-        asset, CARD_W, CARD_H, ledger=ledger, bg=theme.bg, min_scale=tokens.min_scale(CARD_W)
-    )
+    width = CARD_W + gap
+    c = Canvas(asset, width, CARD_H, ledger=ledger, bg=theme.bg, min_scale=tokens.min_scale(width))
     c.style("n", f.mono_medium, 17, theme.text)
     c.style("d", f.sans, 15, theme.muted)
     c.style("k", f.mono, 13, theme.muted)

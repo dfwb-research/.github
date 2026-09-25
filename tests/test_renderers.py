@@ -41,8 +41,9 @@ def test_hero_and_cards_match_the_committed_images() -> None:
         assert art.hero(TOKENS, theme, art.HERO_WIDE, Ledger(), "h") == committed(
             f"hero-{name}.svg"
         )
-        for package in data.packages():
-            card = art.package_card(TOKENS, theme, package, data.Live(), Ledger(), "c")
+        packages = data.packages()
+        for package, gap in zip(packages, profile.card_gaps(len(packages)), strict=True):
+            card = art.package_card(TOKENS, theme, package, data.Live(), Ledger(), "c", gap=gap)
             assert card == committed(f"{package.repo}-{name}.svg")
         assert art.maintainer_card(TOKENS, theme, Ledger(), "m") == committed(
             f"maintainer-{name}.svg"
@@ -143,3 +144,12 @@ def test_avatar_is_an_outlined_monochrome_square() -> None:
     assert "<text" not in svg and "@font-face" not in svg  # outlines draw the same everywhere
     dark = TOKENS.themes["dark"]
     assert set(re.findall(r'fill="(#[0-9A-Fa-f]{6})"', svg)) == {dark.bg, dark.text}
+
+
+def test_the_hero_is_exactly_as_wide_as_the_card_row() -> None:
+    gaps = profile.card_gaps(len(data.packages()))
+    row = sum(art.CARD_W + gap for gap in gaps)
+    assert art.HERO_WIDE.width == row
+    assert gaps[-1] == 0 and profile.card_gaps(0) == []
+    block = profile.packages_block(data.State(status_verified="2026-09-25"))
+    assert "</picture><picture>" in block  # no font-dependent space between the cards
