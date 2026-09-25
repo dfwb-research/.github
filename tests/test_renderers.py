@@ -41,8 +41,6 @@ def test_hero_and_cards_match_the_committed_images() -> None:
         assert art.hero(TOKENS, theme, art.HERO_WIDE, Ledger(), "h") == committed(
             f"hero-{name}.svg"
         )
-        compact = art.hero(TOKENS, theme, art.HERO_COMPACT, Ledger(), "h")
-        assert compact == committed(f"hero-{name}-compact.svg")
         for package in data.packages():
             card = art.package_card(TOKENS, theme, package, data.Live(), Ledger(), "c")
             assert card == committed(f"{package.repo}-{name}.svg")

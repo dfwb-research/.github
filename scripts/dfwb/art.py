@@ -92,51 +92,35 @@ class HeroLayout:
     title_y: float
     tagline_size: float
     tagline_y: float
-    vertical: bool
-    mobile: bool
 
 
-HERO_WIDE = HeroLayout(880, 320, 40, 44, 108, 19, 144, False, False)
-HERO_COMPACT = HeroLayout(400, 432, 24, 32, 84, 17, 118, True, True)
+# One wide hero for every screen. GitHub replaces the whole media query of any <picture> source
+# that mentions prefers-color-scheme, so a phone-width variant would also show on desktop.
+HERO_WIDE = HeroLayout(880, 320, 40, 44, 108, 19, 144)
 
 
 def hero(tokens: Tokens, theme: Theme, layout: HeroLayout, ledger: Ledger, asset: str) -> str:
     f = tokens.fonts
-    scale = (
-        tokens.min_scale(layout.width)
-        if layout.mobile
-        else min(1.0, tokens.desktop_px / layout.width)
-    )
+    scale = min(1.0, tokens.desktop_px / layout.width)
     c = Canvas(asset, layout.width, layout.height, ledger=ledger, bg=theme.bg, min_scale=scale)
-    c.style("e", f.mono, 15 if layout.mobile else 13, theme.muted)
+    c.style("e", f.mono, 13, theme.muted)
     c.style("h", f.sans_bold, layout.title_size, theme.text)
     c.style("g", f.sans, layout.tagline_size, theme.muted)
     c.style("s", f.sans_medium, 17, theme.text)
-    c.style("u", f.mono, 15 if layout.mobile else 13, theme.muted)
+    c.style("u", f.mono, 13, theme.muted)
     w, pad = layout.width, layout.pad
     parts = [_panel(w, layout.height, theme)]
-    parts.append(c.text("github.com/dfwb-research", pad, pad + (16 if layout.mobile else 4), "e"))
+    parts.append(c.text("github.com/dfwb-research", pad, pad + 4, "e"))
     parts.append(c.text(TITLE, pad, layout.title_y, "h"))
-    tagline_lines = c.wrap(TAGLINE, "g", w - 2 * pad) if layout.mobile else [TAGLINE]
-    for i, line in enumerate(tagline_lines):
-        parts.append(c.text(line, pad, layout.tagline_y + i * layout.tagline_size * 1.4, "g"))
+    parts.append(c.text(TAGLINE, pad, layout.tagline_y, "g"))
 
-    nodes: list[tuple[float, float]] = []
-    if layout.vertical:
-        last_tagline = layout.tagline_y + (len(tagline_lines) - 1) * layout.tagline_size * 1.4
-        top, gap = last_tagline + 50, 64
-        nodes = [(pad + 12, top + i * gap) for i in range(len(STAGES))]
-    else:
-        spacing = (w - 2 * pad - 160) / (len(STAGES) - 1)
-        nodes = [(pad + 80 + i * spacing, 212) for i in range(len(STAGES))]
+    spacing = (w - 2 * pad - 160) / (len(STAGES) - 1)
+    nodes = [(pad + 80 + i * spacing, 212) for i in range(len(STAGES))]
     r = 10
     # The chain: neutral links, and green overlays that light as each stage verifies.
     for k in range(len(STAGES) - 1):
-        (x0, y0), (x1, y1) = nodes[k], nodes[k + 1]
-        if layout.vertical:
-            seg = f"M{fmt(x0)} {fmt(y0 + r + 4)}V{fmt(y1 - r - 4)}"
-        else:
-            seg = f"M{fmt(x0 + r + 6)} {fmt(y0)}H{fmt(x1 - r - 6)}"
+        (x0, y0), (x1, _) = nodes[k], nodes[k + 1]
+        seg = f"M{fmt(x0 + r + 6)} {fmt(y0)}H{fmt(x1 - r - 6)}"
         parts.append(el("path", {"d": seg, "stroke": theme.hairline_strong, "stroke-width": "1"}))
         parts.append(
             el(
@@ -176,13 +160,9 @@ def hero(tokens: Tokens, theme: Theme, layout: HeroLayout, ledger: Ledger, asset
                 + check(x, y, 11, theme.verified),
             )
         )
-        if layout.vertical:
-            parts.append(c.text(name, x + 28, y - 2, "s"))
-            parts.append(c.text(" ".join(sub), x + 28, y + 20, "u"))
-        else:
-            parts.append(c.text(name, x, y + 44, "s", anchor="middle"))
-            parts.append(c.text(sub[0], x, y + 68, "u", anchor="middle"))
-            parts.append(c.text(sub[1], x, y + 86, "u", anchor="middle"))
+        parts.append(c.text(name, x, y + 44, "s", anchor="middle"))
+        parts.append(c.text(sub[0], x, y + 68, "u", anchor="middle"))
+        parts.append(c.text(sub[1], x, y + 86, "u", anchor="middle"))
     return c.render(
         title=f"{TITLE}. {TAGLINE}",
         desc=HERO_DESC,
