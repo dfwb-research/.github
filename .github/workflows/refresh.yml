@@ -1,0 +1,58 @@
+# Weekly refresh of the profile: package cards (version, licence, CI once a repository is public
+# and released), dataset and detector tables, citations, contributors, and the status line.
+# Pushes made with GITHUB_TOKEN trigger no other workflow, so the refresh script validates its
+# own output before anything is committed. The status line moves at most every 28 days, which
+# keeps this public repository inside GitHub's 60-day activity window.
+name: refresh
+
+on:
+  schedule:
+    - cron: "41 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: refresh
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write # push the refresh commit; nothing else in the job writes
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          python-version: "3.12"
+      - name: Refresh, rebuild and validate
+        id: refresh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: uv run scripts/refresh_profile.py
+      - name: Commit and push what changed
+        if: steps.refresh.outputs.commit == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          WHAT: ${{ steps.refresh.outputs.what }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add profile
+          if git diff --cached --quiet; then
+            echo "nothing changed"
+            exit 0
+          fi
+          git commit -m "chore(profile): refresh ${WHAT}"
+          auth="$(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w0)"
+          echo "::add-mask::${auth}"
+          header="http.https://github.com/.extraheader=AUTHORIZATION: basic ${auth}"
+          git -c "$header" pull --rebase origin main
+          git -c "$header" push origin HEAD:main
