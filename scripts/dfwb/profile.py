@@ -36,7 +36,7 @@ def picture(base: str, alt: str, *, width: int | None = None) -> str:
     )
 
 
-def card_gaps(count: int) -> list[float]:
+def card_gaps(count: int) -> list[int]:
     """Every card but the last carries the gap, so the row is exactly as wide as the hero."""
     return [art.CARD_GAP] * (count - 1) + [0] * min(count, 1)
 
