@@ -18,6 +18,8 @@ README = PROFILE / "README.md"
 AVATAR = ROOT / "design" / "avatar.svg"
 ORG = "https://github.com/dfwb-research"
 _MD_SPECIAL = re.compile(r"([\\`*_\[\]<>$|#])")
+# The paper to cite. Replace the placeholder with the BibTeX entry once the paper is published.
+PAPER_BIBTEX = "% BibTeX entry to follow on publication."
 
 
 def md(text: str) -> str:
@@ -161,21 +163,28 @@ def cite_block(state: data.State) -> str:
             bibtex(key, citation),
             "```",
         ]
+    lines += [
+        "",
+        "If you found this work helpful, or used it in your research, please cite the "
+        "following paper:",
+        "",
+        "```bibtex",
+        PAPER_BIBTEX,
+        "```",
+    ]
     return "\n".join(lines)
 
 
 def people_block(state: data.State) -> str:
     card = picture(
         "assets/maintainer",
-        "Luke Collins, lead maintainer, Deakin University, ORCID 0009-0002-7771-1081",
+        "Luke Collins, lead maintainer, Deakin University, ORCID 0009-0002-7771-1081.",
         width=400,
     )
     text = (
         f'<a href="https://github.com/lukegcollins">{card}</a>\n\n'
-        "Maintained by Luke Collins, Deakin University "
-        "([ORCID 0009-0002-7771-1081](https://orcid.org/0009-0002-7771-1081)).\n\n"
-        "Contributions are welcome: see "
-        "[CONTRIBUTING](https://github.com/dfwb-research/.github/blob/main/CONTRIBUTING.md)."
+        "Contributions are welcome! Check out our [contributing guidelines]"
+        "(https://github.com/dfwb-research/.github/blob/main/CONTRIBUTING.md) to get started."
     )
     others = state.others()
     if others:

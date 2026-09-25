@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="assets/hero-dark-compact.svg">
-  <source media="(prefers-color-scheme: light) and (max-width: 600px)" srcset="assets/hero-light-compact.svg">
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="assets/hero-dark-compact.svg">
+  <source media="(max-width: 600px) and (prefers-color-scheme: light)" srcset="assets/hero-light-compact.svg">
   <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
   <img alt="DFWB Research. Open, reproducible tooling for deepfake detection research: datasets, protocols, training, evaluation." src="assets/hero-light.svg">
 </picture>
@@ -29,25 +29,29 @@ The first releases are in preparation. Each repository opens with its v0.1 relea
 The dataset and detector tables are populating with v0.1.
 <!-- TABLES:END -->
 
-### Cite this work
-
-<!-- CITE:START -->
-Each package repository carries a `CITATION.cff`, so GitHub's "Cite this repository" button gives you the reference once the repository is public.
-<!-- CITE:END -->
-
 ### Maintainer
 
 <!-- PEOPLE:START -->
-<a href="https://github.com/lukegcollins"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/maintainer-dark.svg"><img alt="Luke Collins, lead maintainer, Deakin University, ORCID 0009-0002-7771-1081" src="assets/maintainer-light.svg" width="400"></picture></a>
+<a href="https://github.com/lukegcollins"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/maintainer-dark.svg"><img alt="Luke Collins, lead maintainer, Deakin University, ORCID 0009-0002-7771-1081." src="assets/maintainer-light.svg" width="400"></picture></a>
 
-Maintained by Luke Collins, Deakin University ([ORCID 0009-0002-7771-1081](https://orcid.org/0009-0002-7771-1081)).
-
-Contributions are welcome: see [CONTRIBUTING](https://github.com/dfwb-research/.github/blob/main/CONTRIBUTING.md).
+Contributions are welcome! Check out our [contributing guidelines](https://github.com/dfwb-research/.github/blob/main/CONTRIBUTING.md) to get started.
 <!-- PEOPLE:END -->
 
 ### Acknowledgments
 
-This work was supported by a [DUPR Scholarship](https://www.deakin.edu.au) and partially funded by [Dynamis Group](https://dynamislabs.com.au). We also gratefully acknowledge the authors and contributors of the associated modules, packages, datasets, and detectors utilised in this research; we make no claims of ownership regarding these external resources.
+This work was supported by a [DUPR Scholarship](https://www.deakin.edu.au) and partially funded by [Dynamis Group](https://dynamisgroup.com.au). We also gratefully acknowledge the authors and contributors of the associated modules, packages, datasets, and detectors utilised in this research; we make no claims of ownership regarding these external resources.
+
+### Cite this work
+
+<!-- CITE:START -->
+Each package repository carries a `CITATION.cff`, so GitHub's "Cite this repository" button gives you the reference once the repository is public.
+
+If you found this work helpful, or used it in your research, please cite the following paper:
+
+```bibtex
+% BibTeX entry to follow on publication.
+```
+<!-- CITE:END -->
 
 <!-- STATUS:START -->
 <p align="right"><samp>status verified 2026-09-25</samp></p>
