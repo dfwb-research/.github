@@ -52,5 +52,12 @@ the workflow's own `GITHUB_TOKEN` and public APIs it:
    maintainer is on it;
 4. moves the "status verified" date, at most once every 28 days, when every check passes.
 
-It commits only when something changed, as `chore(profile): refresh <what>`. The monthly
-status date also keeps this public repository inside GitHub's 60-day activity window.
+`main` takes changes only through pull requests, so when something changed the refresh commits
+it to the `profile-refresh` branch as `chore(profile): refresh <what>`, opens a pull request (or
+updates the open one) and starts CI on the branch. Merge it once CI passes. The branch is
+rebuilt from `main` every run, so an unmerged refresh never goes stale. Because the status date
+moves monthly, a pull request turns up about once a month, and merging it keeps this public
+repository inside GitHub's 60-day activity window.
+
+The workflow can open pull requests only while Settings → Actions → General → Workflow
+permissions → "Allow GitHub Actions to create and approve pull requests" is on.

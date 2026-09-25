@@ -63,3 +63,14 @@ def test_every_workflow_template_has_properties() -> None:
                 assert use.endswith("@v1"), use
             else:
                 assert re.search(r"@[0-9a-f]{40}$", use), f"{use} is not pinned to a commit"
+
+
+def test_the_refresh_proposes_changes_through_a_pull_request() -> None:
+    """main takes changes only through pull requests, so the refresh must never push to it."""
+    workflows = ROOT / ".github" / "workflows"
+    refresh = (workflows / "refresh.yml").read_text(encoding="utf-8")
+    code = re.sub(r"(^|\s)#.*$", "", refresh, flags=re.MULTILINE)
+    assert not re.search(r"HEAD:(refs/heads/)?main\b|\bpush\s[^\n]*\bmain\b", code)
+    assert "gh pr create" in code and "gh workflow run ci.yml" in code
+    ci = (workflows / "ci.yml").read_text(encoding="utf-8")
+    assert re.search(r"^  workflow_dispatch:", ci, flags=re.MULTILINE), "the refresh starts CI"

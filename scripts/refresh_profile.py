@@ -11,9 +11,8 @@
 
     GITHUB_TOKEN=... uv run scripts/refresh_profile.py
 
-Reads public data only. Validates everything it rebuilds before writing, because the commit it
-leads to is pushed with GITHUB_TOKEN and triggers no other workflow. Exit 1 means nothing was
-written.
+Reads public data only, and validates everything it rebuilds before writing. The workflow then
+proposes the change as a pull request. Exit 1 means nothing was written.
 """
 
 from __future__ import annotations
