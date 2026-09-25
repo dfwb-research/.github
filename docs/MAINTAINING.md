@@ -29,8 +29,13 @@ uv run pytest                             # UPDATE_GOLDEN=1 regenerates goldens 
 uv run ruff check && uv run ruff format --check && uv run mypy
 ```
 
-The build refuses text that fails WCAG AA or renders below 12 px on a phone. The green is the
-only colour and marks verified states only; a test fails if it shows up anywhere else.
+The build refuses text that fails WCAG AA or renders below 12 px on a phone. The hero is the
+exception: it is checked at desktop width only, because there is one hero for every screen. GitHub
+replaces the whole media query of any `<picture>` source that mentions `prefers-color-scheme`, so
+a phone-width variant would show on desktop too.
+
+The green is the only colour and marks verified states only; a test fails if it shows up anywhere
+else.
 
 ## The avatar
 

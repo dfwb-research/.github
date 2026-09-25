@@ -44,9 +44,6 @@ def build_images(state: data.State) -> tuple[dict[Path, str], Ledger]:
         out[ASSETS / f"hero-{name}.svg"] = art.hero(
             TOKENS, theme, art.HERO_WIDE, ledger, f"hero-{name}.svg"
         )
-        out[ASSETS / f"hero-{name}-compact.svg"] = art.hero(
-            TOKENS, theme, art.HERO_COMPACT, ledger, f"hero-{name}-compact.svg"
-        )
         for package in packages:
             rel = f"{package.repo}-{name}.svg"
             live = state.live.get(package.repo, data.Live())

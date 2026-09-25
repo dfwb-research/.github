@@ -24,7 +24,7 @@ def test_every_string_is_legible() -> None:
 
 def test_every_svg_passes_hygiene_checks() -> None:
     files = sorted(profile.ASSETS.glob("*.svg"))
-    assert len(files) == 12
+    assert len(files) == 10
     problems = [p for f in files for p in validate.check_svg(f.name, f.read_text(encoding="utf-8"))]
     assert problems == []
 
@@ -37,10 +37,11 @@ def test_every_picture_has_both_variants() -> None:
         assert (profile.PROFILE / twin).exists(), twin
 
 
-def test_theme_queries_come_last_in_combined_media() -> None:
-    """GitHub rewrites "(prefers-color-scheme: …)" to match its own theme setting. Leading with
-    it turns the other theme's compact hero into "not all and (max-width: 600px)", which matches
-    every wide screen, so the compact hero replaces the full-width one on desktop."""
+def test_pictures_switch_on_the_theme_alone() -> None:
+    """GitHub replaces the whole media query of a source that mentions prefers-color-scheme with
+    its own theme's answer, so a query that also tests width is ignored: a phone-width hero showed
+    on desktop too. Every source must test the dark theme and nothing else."""
     text = profile.README.read_text(encoding="utf-8")
-    for media in re.findall(r'media="([^"]+)"', text):
-        assert not re.match(r"\(prefers-color-scheme:[^)]*\)\s*and\b", media), media
+    medias = re.findall(r'<source media="([^"]+)"', text)
+    assert medias
+    assert set(medias) == {"(prefers-color-scheme: dark)"}
