@@ -35,3 +35,12 @@ def test_every_picture_has_both_variants() -> None:
         assert (profile.PROFILE / rel).exists(), rel
         twin = rel.replace("-dark", "-light") if "-dark" in rel else rel.replace("-light", "-dark")
         assert (profile.PROFILE / twin).exists(), twin
+
+
+def test_theme_queries_come_last_in_combined_media() -> None:
+    """GitHub rewrites "(prefers-color-scheme: …)" to match its own theme setting. Leading with
+    it turns the other theme's compact hero into "not all and (max-width: 600px)", which matches
+    every wide screen, so the compact hero replaces the full-width one on desktop."""
+    text = profile.README.read_text(encoding="utf-8")
+    for media in re.findall(r'media="([^"]+)"', text):
+        assert not re.match(r"\(prefers-color-scheme:[^)]*\)\s*and\b", media), media

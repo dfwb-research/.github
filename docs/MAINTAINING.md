@@ -16,6 +16,9 @@ between the markers, and every image in `profile/assets/`, comes from the build.
 | `scripts/build_profile.py` | Rebuilds the images and README blocks from the files above. |
 | `scripts/refresh_profile.py` | Fetches the live facts, rebuilds, validates, writes. |
 
+The paper under **Cite this work** is `PAPER_BIBTEX` in `scripts/dfwb/profile.py`. It holds a
+placeholder until the paper is published; replace it with the real BibTeX entry then, and not before.
+
 ## Rebuild
 
 ```bash
