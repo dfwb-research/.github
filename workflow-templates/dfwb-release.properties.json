@@ -1,0 +1,7 @@
+{
+  "name": "DFWB release to PyPI",
+  "description": "When a release is published, build with the dfwb-research reusable workflow and publish to PyPI with trusted publishing.",
+  "iconName": "octicon package",
+  "categories": ["Python"],
+  "filePatterns": ["pyproject.toml$"]
+}

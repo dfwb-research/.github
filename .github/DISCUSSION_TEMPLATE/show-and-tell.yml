@@ -1,0 +1,30 @@
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Show what you've built or measured with DFWB. If you report numbers, give enough for
+        someone else to reproduce them.
+  - type: textarea
+    id: what
+    attributes:
+      label: What you made
+      description: A paper, a detector, an adapter, an experiment, a tool.
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Link
+      description: Paper, repository or write-up.
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce it
+      description: Protocol version, split, seeds, and the package versions from `dfwb doctor --json`.
+  - type: checkboxes
+    id: media
+    attributes:
+      label: Media
+      options:
+        - label: I haven't attached any dataset media (videos, frames or audio).
+          required: true
