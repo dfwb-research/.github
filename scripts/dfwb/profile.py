@@ -16,6 +16,8 @@ PROFILE = ROOT / "profile"
 ASSETS = PROFILE / "assets"
 README = PROFILE / "README.md"
 AVATAR = ROOT / "design" / "avatar.svg"
+# Package repositories copy their own hero from here: repos/<repo>/hero-{light,dark}.svg.
+REPOS = ROOT / "repos"
 ORG = "https://github.com/dfwb-research"
 _MD_SPECIAL = re.compile(r"([\\`*_\[\]<>$|#])")
 # The paper to cite. Replace the placeholder with the BibTeX entry once the paper is published.
@@ -49,6 +51,11 @@ def build_images(state: data.State) -> tuple[dict[Path, str], Ledger]:
         out[ASSETS / f"hero-{name}.svg"] = art.hero(
             TOKENS, theme, art.HERO_WIDE, ledger, f"hero-{name}.svg"
         )
+        for package in packages:
+            rel = f"repos/{package.repo}/hero-{name}.svg"
+            out[REPOS / package.repo / f"hero-{name}.svg"] = art.repo_hero(
+                TOKENS, theme, art.HERO_WIDE, ledger, rel, package.repo
+            )
         for package, gap in zip(packages, card_gaps(len(packages)), strict=True):
             rel = f"{package.repo}-{name}.svg"
             live = state.live.get(package.repo, data.Live())
@@ -230,7 +237,7 @@ def write(built: dict[Path, str]) -> list[Path]:
 
 
 def stale(built: dict[Path, str]) -> list[Path]:
-    present = set(ASSETS.glob("*.svg"))
+    present = set(ASSETS.glob("*.svg")) | set(REPOS.glob("*/*.svg"))
     changed = [
         p
         for p, content in sorted(built.items())

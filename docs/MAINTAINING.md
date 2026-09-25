@@ -13,6 +13,7 @@ between the markers, and every image in `profile/assets/`, comes from the build.
 | `profile/data/datasets.yml`, `zoo.yml` | The dataset and detector tables. Add rows only from the packages' own registries. |
 | `profile/data/state.json` | Written by the refresh: live package facts, citations, contributors, the status date. |
 | `profile/data/avatars/` | Avatars the images embed, cached by GitHub user id. |
+| `repos/<repo>/hero-light.svg`, `hero-dark.svg` | One hero per package repository, same "Verified mono" design as the organisation hero. Copy both into that repository. |
 | `scripts/build_profile.py` | Rebuilds the images and README blocks from the files above. |
 | `scripts/refresh_profile.py` | Fetches the live facts, rebuilds, validates, writes. |
 

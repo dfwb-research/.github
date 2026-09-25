@@ -29,6 +29,19 @@ def test_every_svg_passes_hygiene_checks() -> None:
     assert problems == []
 
 
+def test_every_repo_hero_passes_hygiene_checks() -> None:
+    files = sorted(profile.REPOS.glob("*/*.svg"))
+    assert len(files) == 6  # one light and one dark hero for each of the three packages
+    problems = [
+        p
+        for f in files
+        for p in validate.check_svg(
+            str(f.relative_to(profile.REPOS)), f.read_text(encoding="utf-8")
+        )
+    ]
+    assert problems == []
+
+
 def test_every_picture_has_both_variants() -> None:
     text = profile.README.read_text(encoding="utf-8")
     for rel in re.findall(r'(?:srcset|src)="(assets/[^"]+\.svg)"', text):

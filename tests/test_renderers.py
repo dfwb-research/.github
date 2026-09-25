@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 import pytest
 from conftest import assert_golden
 from dfwb import art, data, profile, validate
+from dfwb.theme import Theme
 from svgkit.color import Ledger
 
 TOKENS = profile.TOKENS
@@ -36,6 +37,10 @@ def committed(name: str) -> str:
     return (profile.ASSETS / name).read_text(encoding="utf-8")
 
 
+def committed_repo(repo: str, name: str) -> str:
+    return (profile.REPOS / repo / f"hero-{name}.svg").read_text(encoding="utf-8")
+
+
 def test_hero_and_cards_match_the_committed_images() -> None:
     for name, theme in TOKENS.themes.items():
         assert art.hero(TOKENS, theme, art.HERO_WIDE, Ledger(), "h") == committed(
@@ -48,6 +53,13 @@ def test_hero_and_cards_match_the_committed_images() -> None:
         assert art.maintainer_card(TOKENS, theme, Ledger(), "m") == committed(
             f"maintainer-{name}.svg"
         )
+
+
+def test_repo_heroes_match_the_committed_images() -> None:
+    for name, theme in TOKENS.themes.items():
+        for package in data.packages():
+            hero = art.repo_hero(TOKENS, theme, art.HERO_WIDE, Ledger(), "h", package.repo)
+            assert hero == committed_repo(package.repo, name)
 
 
 def test_released_card_and_contributor_wall(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -80,6 +92,8 @@ def test_readme_blocks() -> None:
 
 
 def test_tables(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(data, "datasets", lambda: [])
+    monkeypatch.setattr(data, "detectors", lambda: [])
     assert profile.tables_block() == "The dataset and detector tables are populating with v0.1."
     monkeypatch.setattr(
         data,
@@ -111,18 +125,25 @@ def test_ieee_reference_and_bibtex() -> None:
     assert profile.bibtex("x", two).startswith("@software{x,\n  author = {Ada Lovelace and Alan")
 
 
+def _assert_green_only_marks_verified_overlays(svg: str, theme: Theme) -> None:
+    root = ET.fromstring(svg)
+    parents = {child: parent for parent in root.iter() for child in parent}
+    for element in root.iter():
+        if theme.verified in (element.get("stroke"), element.get("fill")):
+            node: ET.Element | None = element
+            while node is not None and not re.fullmatch(r"[kl]\d", node.get("class", "")):
+                node = parents.get(node)
+            assert node is not None, "green outside a verified-state overlay"
+
+
 def test_green_marks_only_verified_states() -> None:
     """The verified colour may appear only on the stage checks, the chain, and release checks."""
     for theme in TOKENS.themes.values():
         hero = art.hero(TOKENS, theme, art.HERO_WIDE, Ledger(), "h")
-        root = ET.fromstring(hero)
-        parents = {child: parent for parent in root.iter() for child in parent}
-        for element in root.iter():
-            if theme.verified in (element.get("stroke"), element.get("fill")):
-                node: ET.Element | None = element
-                while node is not None and not re.fullmatch(r"[kl]\d", node.get("class", "")):
-                    node = parents.get(node)
-                assert node is not None, "green outside a verified-state overlay"
+        _assert_green_only_marks_verified_overlays(hero, theme)
+        for package in data.packages():
+            repo_hero = art.repo_hero(TOKENS, theme, art.HERO_WIDE, Ledger(), "h", package.repo)
+            _assert_green_only_marks_verified_overlays(repo_hero, theme)
         pending = art.package_card(TOKENS, theme, data.packages()[0], data.Live(), Ledger(), "c")
         assert theme.verified not in pending
         released = art.package_card(TOKENS, theme, data.packages()[0], RELEASED, Ledger(), "c")
