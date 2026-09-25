@@ -1,0 +1,7 @@
+{
+  "name": "DFWB Python CI",
+  "description": "Attribution check, ruff, mypy, a pytest matrix and a checked build for a uv project, from the dfwb-research reusable workflows.",
+  "iconName": "octicon checklist",
+  "categories": ["Python"],
+  "filePatterns": ["pyproject.toml$"]
+}

@@ -1,0 +1,8 @@
+# The organisation's own reusable workflows are called at the moving `v1` tag on purpose, so
+# every repository picks up fixes within v1 without an edit. Everything else stays hash-pinned.
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        "dfwb-research/*": ref-pin
+        "*": hash-pin

@@ -1,0 +1,18 @@
+# The packages on the profile. A card says "v0.1 in preparation", with no link, until its
+# repository is public and has a release. The weekly refresh then fills in the live version,
+# licence and CI state from the GitHub API, and from PyPI once `pypi` names the package there.
+packages:
+  - repo: deepfake-workbench
+    title: Deepfake Workbench
+    summary: >-
+      The framework: verified dataset inventories, face preprocessing, training, scoring any
+      detector, and evaluation with uncertainty. One dfwb command.
+    pypi: null
+  - repo: dfwb-protocols
+    title: dfwb-protocols
+    summary: Versioned train, validation and test splits for public deepfake datasets, CC BY 4.0.
+    pypi: null
+  - repo: dfwb-torch
+    title: dfwb-torch
+    summary: Small, standalone PyTorch utilities for media forensics, starting with dfwb-torch-srm.
+    pypi: null
