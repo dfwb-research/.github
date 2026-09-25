@@ -1,0 +1,9 @@
+# Datasets DFWB publishes protocols for. Media is never distributed: each dataset comes from its
+# owner, under the owner's terms. Add a row only when dfwb-protocols' own registry has it.
+#
+#   - name: Example-DF              # dataset name, as its owners write it
+#     modality: video               # video | image | audio | audio-visual
+#     protocol_version: "1.0"       # the dfwb-protocols version that defines the splits
+#     terms: https://example.org/   # the owner's access terms
+#     status: released              # released | in preparation
+datasets: []

@@ -1,0 +1,8 @@
+# Detectors with a zoo adapter, so `dfwb score` can run them. Add a row only when the
+# deepfake-workbench zoo registry has it.
+#
+#   - name: ExampleNet                          # detector name, as its paper writes it
+#     paper: https://doi.org/10.0000/example    # the paper or its DOI
+#     adapter: released                         # released | in progress | planned
+#     weights_licence: CC BY-NC 4.0             # the licence the weights are published under
+detectors: []
