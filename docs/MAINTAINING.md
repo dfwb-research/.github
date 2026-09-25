@@ -7,6 +7,7 @@ between the markers, and every image in `profile/assets/`, comes from the build.
 | Path | What it is |
 |---|---|
 | `design/tokens.json` | The "Verified mono" identity: colours for both themes, type, layout limits, motion. |
+| `design/avatar.svg` | The organisation avatar, "df" over "wb" as outlines. Built with the rest. |
 | `design/fonts/` | IBM Plex Sans and Mono, unmodified from `google/fonts`, with the OFL. The images embed subsets renamed as the OFL requires for the Reserved Font Name "Plex". |
 | `profile/data/packages.yml` | The package cards. Set `pypi` once a package is on PyPI under that name. |
 | `profile/data/datasets.yml`, `zoo.yml` | The dataset and detector tables. Add rows only from the packages' own registries. |
@@ -27,6 +28,15 @@ uv run ruff check && uv run ruff format --check && uv run mypy
 
 The build refuses text that fails WCAG AA or renders below 12 px on a phone. The green is the
 only colour and marks verified states only; a test fails if it shows up anywhere else.
+
+## The avatar
+
+GitHub takes avatars as PNG, so after a change to `design/avatar.svg`, render it and upload it
+under the organisation's Settings → Profile:
+
+```bash
+npx playwright screenshot --viewport-size="500, 500" "file://$PWD/design/avatar.svg" avatar.png
+```
 
 ## The weekly refresh
 

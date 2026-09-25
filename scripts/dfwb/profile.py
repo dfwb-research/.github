@@ -15,6 +15,7 @@ TOKENS = load()
 PROFILE = ROOT / "profile"
 ASSETS = PROFILE / "assets"
 README = PROFILE / "README.md"
+AVATAR = ROOT / "design" / "avatar.svg"
 ORG = "https://github.com/dfwb-research"
 DYNAMIS_LABS = "https://dynamislabs.com.au"
 _MD_SPECIAL = re.compile(r"([\\`*_\[\]<>$|#])")
@@ -208,6 +209,7 @@ def build_all(state: data.State | None = None) -> tuple[dict[Path, str], Ledger]
     state = state or data.load_state()
     out, ledger = build_images(state)
     out[README] = build_readme(README.read_text(encoding="utf-8"), state)
+    out[AVATAR] = art.avatar(TOKENS)
     return out, ledger
 
 

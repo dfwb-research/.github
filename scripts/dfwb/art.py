@@ -10,9 +10,10 @@ from __future__ import annotations
 import base64
 from dataclasses import dataclass
 
+from svgkit import fonts
 from svgkit.canvas import Canvas
 from svgkit.color import Ledger
-from svgkit.svg import el, fmt
+from svgkit.svg import document, el, fmt
 
 from . import data
 from .theme import Theme, Tokens
@@ -319,3 +320,32 @@ def contributor_wall(
         parts.append(_avatar_image(person.id, x, y, size, f"a{i}"))
     names = ", ".join(p.login for p in people)
     return c.render(title="Contributors", desc=f"Contributors: {names}.", body="".join(parts))
+
+
+AVATAR_PX = 500
+AVATAR_DESC = (
+    "The DFWB Research mark: the letters df above wb in IBM Plex Mono, light on near-black."
+)
+
+
+def avatar(tokens: Tokens) -> str:
+    """The organisation avatar: "df" over "wb" in Plex Mono Medium, on the dark background.
+
+    Two letters a line stay legible at GitHub's 20 px list size. The letters are outlines, not
+    text, so any SVG-to-PNG converter draws them the same (GitHub takes avatars as PNG).
+    """
+    theme = tokens.themes["dark"]
+    face = tokens.fonts.mono_medium
+    size, tracking, leading = 210.0, -0.04, 172.0
+    x = (AVATAR_PX - fonts.measure(face, "df", size, tracking)) / 2
+    _, (_, ink_top, _, _) = fonts.outline(face, "df", size, x, 0.0, tracking)
+    _, (_, _, _, ink_bottom) = fonts.outline(face, "wb", size, x, leading, tracking)
+    baseline = (AVATAR_PX - (ink_bottom - ink_top)) / 2 - ink_top
+    top, _ = fonts.outline(face, "df", size, x, baseline, tracking)
+    bottom, _ = fonts.outline(face, "wb", size, x, baseline + leading, tracking)
+    body = el("rect", {"width": AVATAR_PX, "height": AVATAR_PX, "fill": theme.bg}) + el(
+        "path", {"d": f"{top} {bottom}", "fill": theme.text}
+    )
+    return document(
+        width=AVATAR_PX, height=AVATAR_PX, title=TITLE, desc=AVATAR_DESC, css="", body=body
+    )

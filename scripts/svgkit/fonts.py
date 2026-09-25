@@ -19,8 +19,13 @@ from pathlib import Path
 
 import uharfbuzz as hb
 from fontTools import subset
+from fontTools.pens.boundsPen import BoundsPen
+from fontTools.pens.svgPathPen import SVGPathPen
+from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
 from fontTools.varLib import instancer
+
+from .svg import fmt
 
 # Name records kept in the subset: copyright (0), subfamily (2), version (5), licence (13, 14).
 # Records 1, 3, 4 and 6 are rewritten to the alias; everything else is dropped.
@@ -147,3 +152,41 @@ def _cap_units(path: Path) -> tuple[int, int]:
 def cap_height(face: FontFace, size: float) -> float:
     cap, upem = _cap_units(face.path)
     return cap * size / upem
+
+
+Bounds = tuple[float, float, float, float]  # x_min, y_min, x_max, y_max in SVG coordinates
+
+
+def outline(
+    face: FontFace, text: str, size: float, x: float, baseline: float, tracking: float = 0.0
+) -> tuple[str, Bounds]:
+    """``text`` as SVG path data, shaped with HarfBuzz and drawn from the face's own outlines.
+
+    For marks that must look the same everywhere, whatever fonts the renderer has. Returns the
+    path data and its ink bounds. ``tracking`` is in em, added between characters.
+    """
+    font = _static_instance(face)
+    glyphs = font.getGlyphSet()
+    order = font.getGlyphOrder()
+    hb_font, upem = _hb_font(face.path, face.axes)
+    buffer = hb.Buffer()
+    buffer.add_str(text)
+    buffer.guess_segment_properties()
+    hb.shape(hb_font, buffer, dict.fromkeys(face.features, True))
+    scale = size / upem
+    commands: list[str] = []
+    bounds = BoundsPen(glyphs)
+    pen_x = x
+    for info, pos in zip(buffer.glyph_infos, buffer.glyph_positions, strict=True):
+        glyph = glyphs[order[info.codepoint]]
+        dx, dy = pen_x + pos.x_offset * scale, baseline - pos.y_offset * scale
+        matrix = (scale, 0, 0, -scale, dx, dy)
+        path = SVGPathPen(glyphs, ntos=fmt)
+        glyph.draw(TransformPen(path, matrix))
+        glyph.draw(TransformPen(bounds, matrix))
+        commands.append(path.getCommands())
+        pen_x += pos.x_advance * scale + tracking * size
+    if bounds.bounds is None:
+        return "", (x, baseline, x, baseline)
+    x_min, y_min, x_max, y_max = bounds.bounds
+    return " ".join(c for c in commands if c), (x_min, y_min, x_max, y_max)

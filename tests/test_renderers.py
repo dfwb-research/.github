@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 
 import pytest
 from conftest import assert_golden
-from dfwb import art, data, profile
+from dfwb import art, data, profile, validate
 from svgkit.color import Ledger
 
 TOKENS = profile.TOKENS
@@ -125,3 +125,13 @@ def test_the_resting_frame_is_fully_verified() -> None:
     outside_keyframes = re.sub(r"@keyframes\s+\w+\{(?:[^{}]*\{[^{}]*\})*\}", "", css)
     assert "opacity:0" not in outside_keyframes
     assert "prefers-reduced-motion:reduce" in css
+
+
+def test_avatar_is_an_outlined_monochrome_square() -> None:
+    svg = art.avatar(TOKENS)
+    assert svg == profile.AVATAR.read_text(encoding="utf-8")
+    assert validate.check_svg("avatar.svg", svg) == []
+    assert 'viewBox="0 0 500 500"' in svg
+    assert "<text" not in svg and "@font-face" not in svg  # outlines draw the same everywhere
+    dark = TOKENS.themes["dark"]
+    assert set(re.findall(r'fill="(#[0-9A-Fa-f]{6})"', svg)) == {dark.bg, dark.text}
