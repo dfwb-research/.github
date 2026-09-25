@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import re
 import xml.etree.ElementTree as ET
 
@@ -21,6 +22,14 @@ CITATION = data.Citation(
 )
 FRIEND = data.Contributor(login="example-contributor", id=1)
 MAINTAINER = data.Contributor(login=data.MAINTAINER_LOGIN, id=data.MAINTAINER_ID)
+# The goldens use this 1x1 PNG for every avatar, so they never depend on the avatars the weekly
+# refresh caches (a new profile picture would otherwise fail CI on the refresh's own PR).
+FIXED_AVATAR = (
+    "image/png",
+    base64.b64decode(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+    ),
+)
 
 
 def committed(name: str) -> str:
@@ -42,7 +51,8 @@ def test_hero_and_cards_match_the_committed_images() -> None:
         )
 
 
-def test_released_card_and_contributor_wall() -> None:
+def test_released_card_and_contributor_wall(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(data, "avatar", lambda user_id: FIXED_AVATAR)
     package = data.packages()[0]
     for name, theme in sorted(TOKENS.themes.items()):
         ledger = Ledger()

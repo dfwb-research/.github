@@ -17,7 +17,6 @@ ASSETS = PROFILE / "assets"
 README = PROFILE / "README.md"
 AVATAR = ROOT / "design" / "avatar.svg"
 ORG = "https://github.com/dfwb-research"
-DYNAMIS_LABS = "https://dynamislabs.com.au"
 _MD_SPECIAL = re.compile(r"([\\`*_\[\]<>$|#])")
 
 
@@ -174,8 +173,8 @@ def people_block(state: data.State) -> str:
     text = (
         f'<a href="https://github.com/lukegcollins">{card}</a>\n\n'
         "Maintained by Luke Collins, Deakin University "
-        "([ORCID 0009-0002-7771-1081](https://orcid.org/0009-0002-7771-1081)). "
-        f"[Supported by Dynamis Labs]({DYNAMIS_LABS}). Contributions are welcome: see "
+        "([ORCID 0009-0002-7771-1081](https://orcid.org/0009-0002-7771-1081)).\n\n"
+        "Contributions are welcome: see "
         "[CONTRIBUTING](https://github.com/dfwb-research/.github/blob/main/CONTRIBUTING.md)."
     )
     others = state.others()
