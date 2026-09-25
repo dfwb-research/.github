@@ -1,8 +1,30 @@
 {
  "status_verified": "2026-09-25",
- "live": {},
+ "live": {
+  "deepfake-workbench": {
+   "public": false,
+   "version": null,
+   "licence": null,
+   "ci": null
+  },
+  "dfwb-protocols": {
+   "public": false,
+   "version": null,
+   "licence": null,
+   "ci": null
+  },
+  "dfwb-torch": {
+   "public": false,
+   "version": null,
+   "licence": null,
+   "ci": null
+  }
+ },
  "citations": {},
  "contributors": [
-  {"login": "lukegcollins", "id": 82789246}
+  {
+   "login": "lukegcollins",
+   "id": 82789246
+  }
  ]
 }
