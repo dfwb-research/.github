@@ -1,4 +1,5 @@
-# Checks for this repository itself: attribution, workflow lint, issue-form schemas.
+# Checks for this repository itself: attribution, workflow and template lint, form schemas,
+# and the profile's generators (lint, types, tests, a reproducible build).
 name: ci
 
 on:
@@ -17,6 +18,7 @@ jobs:
   lint:
     name: lint
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -62,9 +64,13 @@ jobs:
           fi
           echo "no attribution trailers in $range"
       - name: actionlint
-        run: uv tool run --from actionlint-py==1.7.12.25 actionlint
+        run: |
+          uv tool run --from actionlint-py==1.7.12.25 actionlint
+          uv tool run --from actionlint-py==1.7.12.25 actionlint workflow-templates/*.yml
       - name: zizmor
-        run: uv tool run zizmor==1.30.1 --persona regular .github/workflows
+        run: |
+          uv tool run zizmor==1.30.1 --persona regular .github/workflows
+          uv tool run zizmor==1.30.1 --persona regular workflow-templates/*.yml
       - name: Issue forms match GitHub's schema
         run: |
           uv tool run check-jsonschema==0.38.2 --builtin-schema vendor.github-issue-forms \
@@ -72,3 +78,43 @@ jobs:
             .github/ISSUE_TEMPLATE/new_dataset_protocol.yml .github/ISSUE_TEMPLATE/new_zoo_adapter.yml
           uv tool run check-jsonschema==0.38.2 --builtin-schema vendor.github-issue-config \
             .github/ISSUE_TEMPLATE/config.yml
+      - name: Discussion forms match GitHub's schema
+        run: |
+          uv tool run check-jsonschema==0.38.2 --builtin-schema vendor.github-discussion \
+            .github/DISCUSSION_TEMPLATE/*.yml
+      - name: Workflow template properties are valid JSON with a name and description
+        run: |
+          for f in workflow-templates/*.properties.json; do
+            python3 -c 'import json, sys; d = json.load(open(sys.argv[1])); assert d["name"] and d["description"], sys.argv[1]' "$f"
+            [ -f "${f%.properties.json}.yml" ] || { echo "::error::$f has no matching workflow"; exit 1; }
+          done
+
+  profile:
+    name: profile
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          python-version: "3.12"
+      - name: Sync the locked environment
+        run: uv sync --locked
+      - name: ruff
+        run: |
+          uv run --no-sync ruff check
+          uv run --no-sync ruff format --check
+      - name: mypy
+        run: uv run --no-sync mypy
+      - name: pytest
+        run: uv run --no-sync pytest
+      - name: Committed profile equals a fresh build
+        run: uv run scripts/build_profile.py --check
+      - name: Every SVG is well-formed (xmllint)
+        run: |
+          if ! command -v xmllint >/dev/null; then
+            sudo apt-get update -q && sudo apt-get install -y -q libxml2-utils
+          fi
+          find profile/assets -name '*.svg' -print0 | xargs -0 xmllint --noout
