@@ -21,14 +21,14 @@ from .theme import Theme, Tokens
 TITLE = "DFWB Research"
 TAGLINE = "Open, reproducible tooling for deepfake detection research."
 STAGES = (
-    ("datasets", ("sha256-verified", "inventories")),
+    ("datasets", ("verified", "inventories")),
     ("protocols", ("versioned", "splits")),
     ("training", ("seed-locked", "runs")),
     ("evaluation", ("AUC ± CI", "with coverage")),
 )
 HERO_DESC = (
     "DFWB Research: open, reproducible tooling for deepfake detection research. A four-stage "
-    "pipeline, each stage ticking green in turn: datasets (sha256-verified inventories), "
+    "pipeline, each stage ticking green in turn: datasets (verified inventories), "
     "protocols (versioned splits), training (seed-locked runs) and evaluation (AUC with "
     "confidence intervals and coverage)."
 )
@@ -60,7 +60,7 @@ REPO_STAGES: dict[str, tuple[tuple[str, tuple[str, str]], ...]] = {
 REPO_HERO_DESC: dict[str, str] = {
     "deepfake-workbench": (
         "Deepfake Workbench: open, reproducible tooling for deepfake detection research. A "
-        "four-stage pipeline, each stage ticking green in turn: datasets (sha256-verified "
+        "four-stage pipeline, each stage ticking green in turn: datasets (verified "
         "inventories), protocols (versioned splits), training (seed-locked runs) and "
         "evaluation (AUC with confidence intervals and coverage)."
     ),
