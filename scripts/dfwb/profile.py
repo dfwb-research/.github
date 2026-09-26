@@ -93,19 +93,99 @@ def packages_block(state: data.State) -> str:
     return lead + "\n\n<p>\n" + "".join(cards) + "\n</p>"
 
 
+# The dataset table is the one dfwb-protocols generates for its own README
+# (scripts/dataset_table.py there): the same columns, cells, notes and method lists, word for
+# word, so the two never disagree. Only the line on the datasets' status is the profile's own.
+DATASET_HEADER = (
+    "| Dataset | Year | Modality | Real | Fake | Total | Subjects | Manipulation methods "
+    "| Compression variants | Default protocol | Rights cleared |"
+)
+DATASET_ALIGN = "|---|---:|---|---:|---:|---:|---:|---|---|---|---|"
+# A dataset with more methods than this has them listed under the table, not in its cell.
+MAX_METHODS_IN_CELL = 5
+DASH = "\N{EM DASH}"
+
+
+def _count(value: int | None) -> str:
+    return DASH if value is None else f"{value:,}"
+
+
+def dataset_cells(d: data.Dataset) -> list[str]:
+    name = md(d.name)
+    if len(d.methods) <= MAX_METHODS_IN_CELL:
+        methods = f"{len(d.methods)}: " + ", ".join(md(m) for m in d.methods)
+    else:
+        methods = f"{len(d.methods)}, listed below"
+    variants = ", ".join(md(v) for v in d.variants) or DASH
+    if d.variants_of:
+        variants += f" ({d.variants_of} only)"
+    return [
+        f"[{name}]({d.repository})" if d.repository else name,
+        DASH if d.year is None else str(d.year),
+        d.modality,
+        _count(d.real),
+        _count(d.fake),
+        _count(d.total),
+        _count(d.subjects),
+        methods,
+        variants,
+        f"`{d.default_protocol}`",
+        "Yes" if d.rights_cleared else "No",
+    ]
+
+
+def dataset_notes(versions: list[str]) -> list[str]:
+    """The notes under the dataset table, one Markdown list item each."""
+    return [
+        f"- Real, Fake and Total count the videos each protocol lists in dfwb-protocols "
+        f"{' and '.join(versions)}; a video at several compressions counts once. These are not "
+        "the publishers' totals, and differ where the local release differs: DFDC's protocol, "
+        "for one, lists only the public test set.",
+        "- Real and Fake follow each dataset's own `binary` label, which judges the video alone: "
+        "a real video with fake audio counts as real.",
+        "- Year is that of the paper the dataset's card cites, which can be later than the "
+        "release.",
+        "- Subjects count distinct people, shown only where every identity a dataset records is "
+        f"a person; {DASH} elsewhere.",
+        "- Manipulation methods count the distinct `method` labels of the fakes. Where a release "
+        "does not say how each fake was made, one label covers them all.",
+        "- Rights cleared: No means DFWB does not yet publish these lists. Each dataset comes "
+        "from its owner, under the owner's terms.",
+    ]
+
+
+def status_line(datasets: list[data.Dataset]) -> str:
+    counts = [(s, sum(1 for d in datasets if d.status == s)) for s in data.DATASET_STATUS]
+    present = [(s, n) for s, n in counts if n]
+    if len(present) == 1:
+        return f"All {len(datasets)} datasets are {present[0][0]}."
+    said = " and ".join(f"{n} {'is' if n == 1 else 'are'} {s}" for s, n in present)
+    return f"Of the {len(datasets)} datasets, {said}."
+
+
+def datasets_table(datasets: list[data.Dataset]) -> list[str]:
+    lines = [status_line(datasets), "", DATASET_HEADER, DATASET_ALIGN]
+    lines += ["| " + " | ".join(dataset_cells(d)) + " |" for d in datasets]
+    versions = sorted({d.protocol_version for d in datasets})
+    lines += ["", *dataset_notes(versions)]
+    # After the notes, and behind a paragraph of its own, so the two lists never merge into one.
+    long = [d for d in datasets if len(d.methods) > MAX_METHODS_IN_CELL]
+    if long:
+        lines += ["", "The manipulation methods of the datasets with more than five:", ""]
+        lines += [
+            f"- **{md(d.name)}** ({len(d.methods)}): " + ", ".join(md(m) for m in d.methods)
+            for d in long
+        ]
+    return lines
+
+
 def tables_block() -> str:
     datasets, detectors = data.datasets(), data.detectors()
     if not datasets and not detectors:
         return "The dataset and detector tables are populating with v0.1."
     parts: list[str] = []
     if datasets:
-        parts.append("| Dataset | Modality | Protocol | Owner's terms | Status |")
-        parts.append("|---|---|---|---|---|")
-        parts += [
-            f"| {md(d.name)} | {d.modality} | v{md(d.protocol_version)} | [terms]({d.terms}) "
-            f"| {d.status} |"
-            for d in datasets
-        ]
+        parts += datasets_table(datasets)
     if detectors:
         if parts:
             parts.append("")

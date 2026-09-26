@@ -95,19 +95,64 @@ def test_tables(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(data, "datasets", lambda: [])
     monkeypatch.setattr(data, "detectors", lambda: [])
     assert profile.tables_block() == "The dataset and detector tables are populating with v0.1."
-    monkeypatch.setattr(
-        data,
-        "datasets",
-        lambda: [
-            data.Dataset("Example-DF", "video", "1.0", "https://example.org/terms", "released")
-        ],
+    example = data.Dataset(
+        name="Example-DF",
+        modality="audio-visual",
+        protocol_version="1.0",
+        terms="https://example.org/terms",
+        status="released",
+        real=1200,
+        fake=34_567,
+        methods=("face_swap", "Lip-sync"),
+        default_protocol="official",
+        rights_cleared=True,
+        repository="https://example.org/df",
+        year=2021,
+        subjects=42,
+        variants=("raw", "c23"),
+        variants_of="fakes",
     )
+    wide = data.Dataset(
+        name="Wide-DF",
+        modality="video",
+        protocol_version="1.0",
+        terms="https://example.org/wide-terms",
+        status="in preparation",
+        real=1,
+        fake=6,
+        methods=tuple(f"m{n}" for n in range(6)),
+        default_protocol="all-test",
+        rights_cleared=False,
+    )
+    monkeypatch.setattr(data, "datasets", lambda: [example, wide])
     monkeypatch.setattr(
         data,
         "detectors",
         lambda: [data.Detector("ExampleNet", "https://doi.org/10.0000/x", "planned", "MIT")],
     )
-    assert_golden("tables.md", profile.tables_block() + "\n")
+    block = profile.tables_block()
+    assert_golden("tables.md", block + "\n")
+    assert "Of the 2 datasets, 1 is released and 1 is in preparation." in block
+    assert (
+        "| [Example-DF](https://example.org/df) | 2021 | audio-visual | 1,200 | 34,567 | 35,767 "
+        "| 42 | 2: face\\_swap, Lip-sync | raw, c23 (fakes only) | `official` | Yes |"
+    ) in block
+    assert (
+        "| Wide-DF | — | video | 1 | 6 | 7 | — | 6, listed below | — | `all-test` | No |" in block
+    )
+    assert "- **Wide-DF** (6): m0, m1, m2, m3, m4, m5" in block
+    assert "lists in dfwb-protocols 1.0;" in block
+
+
+def test_tables_match_the_protocol_pack_notes() -> None:
+    """The profile's notes are word for word those dfwb-protocols writes under its own table."""
+    notes = profile.dataset_notes(["0.1.0"])
+    assert notes[0].startswith("- Real, Fake and Total count the videos each protocol lists in ")
+    assert "dfwb-protocols 0.1.0; a video at several compressions counts once." in notes[0]
+    assert notes[-1] == (
+        "- Rights cleared: No means DFWB does not yet publish these lists. Each dataset comes "
+        "from its owner, under the owner's terms."
+    )
 
 
 def test_ieee_reference_and_bibtex() -> None:
