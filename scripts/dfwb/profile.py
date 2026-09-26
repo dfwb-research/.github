@@ -240,9 +240,12 @@ def bibtex(key: str, citation: data.Citation) -> str:
 
 
 def cite_block(state: data.State) -> str:
+    # GitHub's "Cite this repository" button reads only a CITATION.cff at a repository's root;
+    # dfwb-torch has none there, since each of its packages is cited on its own.
     lines = [
-        'Each package repository carries a `CITATION.cff`, so GitHub\'s "Cite this repository" '
-        "button gives you the reference once the repository is public."
+        "The deepfake-workbench and dfwb-protocols repositories each carry a `CITATION.cff`, so "
+        'GitHub\'s "Cite this repository" button gives you the reference once the repository is '
+        "public. Each dfwb-torch package carries its own `CITATION.cff`, in the package's folder."
     ]
     for repo, citation in sorted(state.citations.items()):
         key = repo.replace("-", "_")

@@ -17,7 +17,7 @@ The first releases are in preparation. Each repository opens with its v0.1 relea
 
 **Never media.** We publish identifiers, labels and splits, never the videos, frames or audio. You get each dataset from its owner, under the owner's terms.
 
-**Reproducible by default.** Inventories are checked against sha256, splits are versioned, runs are seed-locked, and results carry confidence intervals. [RESPONSIBLE_USE.md](https://github.com/dfwb-research/.github/blob/main/RESPONSIBLE_USE.md) covers the rest.
+**Reproducible by default.** Local inventories are checked against versioned, sha256-pinned splits, runs are seed-locked, and results carry confidence intervals. [RESPONSIBLE_USE.md](https://github.com/dfwb-research/.github/blob/main/RESPONSIBLE_USE.md) covers the rest.
 
 ### Datasets and detectors
 
@@ -67,7 +67,7 @@ The manipulation methods of the datasets with more than five:
 ### Cite this work
 
 <!-- CITE:START -->
-Each package repository carries a `CITATION.cff`, so GitHub's "Cite this repository" button gives you the reference once the repository is public.
+The deepfake-workbench and dfwb-protocols repositories each carry a `CITATION.cff`, so GitHub's "Cite this repository" button gives you the reference once the repository is public. Each dfwb-torch package carries its own `CITATION.cff`, in the package's folder.
 
 If you found this work helpful, or used it in your research, please cite the following paper:
 
