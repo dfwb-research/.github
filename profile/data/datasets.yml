@@ -1,9 +1,336 @@
 # Datasets DFWB publishes protocols for. Media is never distributed: each dataset comes from its
-# owner, under the owner's terms. Add a row only when dfwb-protocols' own registry has it.
+# owner, under the owner's terms. Add a row only when dfwb-protocols' own registry has it, and
+# take every fact from that pack: the rows must agree with the table dfwb-protocols generates for
+# its README (scripts/dataset_table.py there), cell for cell.
 #
 #   - name: Example-DF              # dataset name, as its owners write it
+#     repository: https://example.org/  # optional: the owner's page the name links to
+#     year: 2021                    # optional: the year of the paper the dataset's card cites
 #     modality: video               # video | image | audio | audio-visual
+#     real: 1000                    # unique real videos the protocol lists (binary label 0)
+#     fake: 5000                    # unique fake videos the protocol lists (binary label 1)
+#     subjects: 100                 # optional: distinct people, only if every identity is one
+#     methods: [A, B]               # the distinct method labels of the fakes
+#     variants: [raw, c23]          # optional: the compressions the protocol lists videos at
+#     variants_of: fakes            # optional: fakes | reals, when only they come in variants
+#     default_protocol: official    # the card's default scheme
+#     rights_cleared: false         # true only once DFWB publishes the dataset's lists
 #     protocol_version: "1.0"       # the dfwb-protocols version that defines the splits
 #     terms: https://example.org/   # the owner's access terms
 #     status: released              # released | in preparation
-datasets: []
+datasets:
+  - name: AV-Deepfake1M++
+    repository: https://huggingface.co/datasets/ControlNet/AV-Deepfake1M-PlusPlus
+    year: 2025
+    modality: audio-visual
+    real: 39158
+    fake: 38168
+    subjects: null
+    methods: [diff2lip, Talklip]
+    variants: null
+    variants_of: null
+    default_protocol: official
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://github.com/ControlNet/AV-Deepfake1M/blob/master/eula.pdf
+    status: in preparation
+  - name: Celeb-DF v1
+    repository: https://github.com/yuezunli/celeb-deepfakeforensics
+    year: 2020
+    modality: video
+    real: 408
+    fake: 795
+    subjects: null
+    methods: [Celeb-synthesis]
+    variants: null
+    variants_of: null
+    default_protocol: official+ident-80-20
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://github.com/yuezunli/celeb-deepfakeforensics
+    status: in preparation
+  - name: Celeb-DF v2
+    repository: https://github.com/yuezunli/celeb-deepfakeforensics
+    year: 2020
+    modality: video
+    real: 890
+    fake: 5639
+    subjects: null
+    methods: [Celeb-synthesis]
+    variants: null
+    variants_of: null
+    default_protocol: official+ident-80-20
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://github.com/yuezunli/celeb-deepfakeforensics
+    status: in preparation
+  - name: Celeb-DF v3
+    repository: https://github.com/OUC-VAS/Celeb-DF-PP
+    year: 2025
+    modality: video
+    real: 890
+    fake: 53196
+    subjects: null
+    methods: [AniTalker, BlendFace, Celeb-DF-v2, DaGAN, EchoMimic, EDTalk, FLOAT, FSRT, GHOST, HifiFace, HyperReenact, InSwapper, IP_LAP, LIA, LivePortrait, MCNET, MobileFaceSwap, Real3DPortrait, SadTalker, SimSwap, TPSMM, UniFace]
+    variants: null
+    variants_of: null
+    default_protocol: official+ident-80-20
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://github.com/OUC-VAS/Celeb-DF-PP
+    status: in preparation
+  - name: DeeperForensics-1.0
+    repository: https://github.com/EndlessSora/DeeperForensics-1.0
+    year: 2020
+    modality: video
+    real: 40352
+    fake: 11000
+    subjects: 100
+    methods: [E2E-Level-1, E2E-Level-2, E2E-Level-3, E2E-Level-4, E2E-Level-5, E2E-Mix-2, E2E-Mix-3, E2E-Mix-4, E2E-Random, End-to-End, Reenact-Post]
+    variants: null
+    variants_of: null
+    default_protocol: official
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://github.com/EndlessSora/DeeperForensics-1.0/raw/master/dataset/Terms_of_Use.pdf
+    status: in preparation
+  - name: DeepFakeDetection
+    repository: https://github.com/ondyari/FaceForensics
+    year: null
+    modality: video
+    real: 363
+    fake: 3068
+    subjects: 28
+    methods: [deepfakedetection]
+    variants: [raw, c23, c40]
+    variants_of: null
+    default_protocol: ident-72-14-14
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://github.com/ondyari/FaceForensics
+    status: in preparation
+  - name: DeepSpeak v1
+    repository: https://huggingface.co/datasets/faridlab/deepspeak_v1_1
+    year: 2026
+    modality: audio-visual
+    real: 6667
+    fake: 6796
+    subjects: 220
+    methods: [facefusion, facefusion_gan, facefusion_live, retalking, wav2lip]
+    variants: null
+    variants_of: null
+    default_protocol: official+ident-80-20
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://huggingface.co/datasets/faridlab/deepspeak_v1
+    status: in preparation
+  - name: DeepSpeak v2
+    repository: https://huggingface.co/datasets/faridlab/deepspeak_v2
+    year: 2026
+    modality: audio-visual
+    real: 9376
+    fake: 7209
+    subjects: 280
+    methods: [diff2lip, facefusion, hellomeme, latentsync, liveportrait, memo]
+    variants: null
+    variants_of: null
+    default_protocol: official+ident-80-20
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://huggingface.co/datasets/faridlab/deepspeak_v2
+    status: in preparation
+  - name: DFDC
+    repository: https://ai.meta.com/datasets/dfdc/
+    year: 2020
+    modality: video
+    real: 2500
+    fake: 2500
+    subjects: null
+    methods: [deepfake]
+    variants: null
+    variants_of: null
+    default_protocol: official
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://www.kaggle.com/c/deepfake-detection-challenge/rules
+    status: in preparation
+  - name: DFDC Preview
+    repository: null
+    year: 2019
+    modality: video
+    real: 1131
+    fake: 4119
+    subjects: 68
+    methods: [method_a, method_b]
+    variants: null
+    variants_of: null
+    default_protocol: official+ident-80-20
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://deepfakedetectionchallenge.ai
+    status: in preparation
+  - name: DFDM
+    repository: https://github.com/shanface33/Deepfake_Model_Attribution
+    year: 2022
+    modality: video
+    real: 590
+    fake: 2150
+    subjects: 59
+    methods: [DFaker, DFL-H128, FaceSwap, IAE, LightWeight]
+    variants: [c0, c10, c23]
+    variants_of: fakes
+    default_protocol: ident-72-14-14
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://github.com/shanface33/Deepfake_Model_Attribution
+    status: in preparation
+  - name: FaceForensics++
+    repository: https://github.com/ondyari/FaceForensics
+    year: 2019
+    modality: video
+    real: 1000
+    fake: 5000
+    subjects: null
+    methods: [Deepfakes, Face2Face, FaceShifter, FaceSwap, NeuralTextures]
+    variants: [raw, c23, c40]
+    variants_of: null
+    default_protocol: official
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://github.com/ondyari/FaceForensics
+    status: in preparation
+  - name: FakeAVCeleb
+    repository: https://github.com/DASH-Lab/FakeAVCeleb
+    year: 2021
+    modality: audio-visual
+    real: 1000
+    fake: 20544
+    subjects: 500
+    methods: [faceswap, faceswap-wav2lip, fsgan, fsgan-wav2lip, wav2lip]
+    variants: null
+    variants_of: null
+    default_protocol: ident-72-14-14
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://sites.google.com/view/fakeavcelebdash-lab/license
+    status: in preparation
+  - name: FFIW-10K
+    repository: https://github.com/tfzhou/FFIW
+    year: 2021
+    modality: video
+    real: 9988
+    fake: 9988
+    subjects: null
+    methods: [unknown]
+    variants: null
+    variants_of: null
+    default_protocol: official
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://github.com/tfzhou/FFIW
+    status: in preparation
+  - name: IDForge
+    repository: https://github.com/xyyandxyy/IDForge
+    year: 2024
+    modality: audio-visual
+    real: 120000
+    fake: 130000
+    subjects: 54
+    methods: [face_audiomismatch_textmismatch, face_rvc_textmismatch, face_tts, face_tts_textgen, lip_audiomismatch_textmismatch, lip_rvc_textmismatch, lip_tts_textgen]
+    variants: null
+    variants_of: null
+    default_protocol: official
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://github.com/xyyandxyy/IDForge
+    status: in preparation
+  - name: KoDF
+    repository: https://github.com/deepbrainai-research/kodf
+    year: 2021
+    modality: video
+    real: 62164
+    fake: 175660
+    subjects: 403
+    methods: [audio-driven, dffs, dfl, fo, fsgan]
+    variants: null
+    variants_of: null
+    default_protocol: ident-72-14-14
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://github.com/deepbrainai-research/kodf
+    status: in preparation
+  - name: LAV-DF
+    repository: https://github.com/ControlNet/LAV-DF
+    year: 2022
+    modality: audio-visual
+    real: 69601
+    fake: 66703
+    subjects: null
+    methods: [FakeVideo-FakeAudio, FakeVideo-RealAudio]
+    variants: null
+    variants_of: null
+    default_protocol: official
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://github.com/ControlNet/LAV-DF/blob/master/TERMS_AND_CONDITIONS.md
+    status: in preparation
+  - name: PolyGlotFake
+    repository: https://github.com/tobuta/PolyGlotFake
+    year: 2024
+    modality: audio-visual
+    real: 762
+    fake: 13605
+    subjects: null
+    methods: [lip_sync]
+    variants: null
+    variants_of: null
+    default_protocol: ident-72-14-14
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://github.com/tobuta/PolyGlotFake
+    status: in preparation
+  - name: TalkingHeadBench
+    repository: https://huggingface.co/datasets/luchaoqi/TalkingHeadBench
+    year: 2025
+    modality: audio-visual
+    real: 2608
+    fake: 2994
+    subjects: null
+    methods: [AniPortraitAudio, AniPortraitVideo, EmoPortrait, Hallo, Hallo2, Hallo3, LivePortrait, MAGI-1]
+    variants: null
+    variants_of: null
+    default_protocol: official
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://huggingface.co/datasets/luchaoqi/TalkingHeadBench
+    status: in preparation
+  - name: UADFV
+    repository: https://docs.google.com/forms/d/e/1FAIpQLScKPoOv15TIZ9Mn0nGScIVgKRM9tFWOmjh9eHKx57Yp-XcnxA/viewform
+    year: 2019
+    modality: video
+    real: 49
+    fake: 49
+    subjects: null
+    methods: [faceswap]
+    variants: null
+    variants_of: null
+    default_protocol: all-test
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://docs.google.com/forms/d/e/1FAIpQLScKPoOv15TIZ9Mn0nGScIVgKRM9tFWOmjh9eHKx57Yp-XcnxA/viewform
+    status: in preparation
+  - name: WildDeepfake
+    repository: https://huggingface.co/datasets/xingjunm/WildDeepfake
+    year: 2020
+    modality: video
+    real: 3805
+    fake: 3509
+    subjects: null
+    methods: [fake]
+    variants: null
+    variants_of: null
+    default_protocol: official+ident-80-20
+    rights_cleared: false
+    protocol_version: "0.1.0"
+    terms: https://github.com/xingjunm/wild-deepfake
+    status: in preparation

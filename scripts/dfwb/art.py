@@ -21,17 +21,62 @@ from .theme import Theme, Tokens
 TITLE = "DFWB Research"
 TAGLINE = "Open, reproducible tooling for deepfake detection research."
 STAGES = (
-    ("datasets", ("sha256-verified", "inventories")),
+    ("datasets", ("verified", "inventories")),
     ("protocols", ("versioned", "splits")),
     ("training", ("seed-locked", "runs")),
     ("evaluation", ("AUC ± CI", "with coverage")),
 )
 HERO_DESC = (
     "DFWB Research: open, reproducible tooling for deepfake detection research. A four-stage "
-    "pipeline, each stage ticking green in turn: datasets (sha256-verified inventories), "
+    "pipeline, each stage ticking green in turn: datasets (verified inventories), "
     "protocols (versioned splits), training (seed-locked runs) and evaluation (AUC with "
     "confidence intervals and coverage)."
 )
+
+# Per-repository heroes: same "Verified mono" design as the organisation hero above, but scoped
+# to one package. The tagline is the package's own summary from packages.yml when that fits the
+# hero's single-line tagline slot, or else this shorter line that says the same thing. The stage
+# row is a true, public-safe story for that package; it need not be the organisation's four
+# stages.
+REPO_TAGLINES: dict[str, str] = {
+    "deepfake-workbench": TAGLINE,
+    "dfwb-protocols": "Versioned splits for public deepfake datasets, CC BY 4.0.",
+    "dfwb-torch": "Standalone PyTorch layers for media forensics.",
+}
+REPO_STAGES: dict[str, tuple[tuple[str, tuple[str, str]], ...]] = {
+    "deepfake-workbench": STAGES,
+    "dfwb-protocols": (
+        ("dataset lists", ("identifiers,", "labels")),
+        ("versioned splits", ("train, val,", "test")),
+        ("scheme hashes", ("sha256,", "pinned")),
+        ("CC BY 4.0", ("public", "licence")),
+    ),
+    "dfwb-torch": (
+        ("PyTorch layers", ("standalone,", "no DFWB")),
+        ("SRM filter bank", ("dfwb-torch-srm,", "fixed kernels")),
+        ("DFWB plugin", ("registered when", "installed")),
+    ),
+}
+REPO_HERO_DESC: dict[str, str] = {
+    "deepfake-workbench": (
+        "Deepfake Workbench: open, reproducible tooling for deepfake detection research. A "
+        "four-stage pipeline, each stage ticking green in turn: datasets (verified "
+        "inventories), protocols (versioned splits), training (seed-locked runs) and "
+        "evaluation (AUC with confidence intervals and coverage)."
+    ),
+    "dfwb-protocols": (
+        "dfwb-protocols: versioned train, validation and test splits for public deepfake "
+        "datasets, CC BY 4.0. Four stages, each ticking green in turn: dataset lists "
+        "(identifiers and labels, never media), versioned splits (train, validation and "
+        "test), scheme hashes (sha256, pinned per version) and the CC BY 4.0 licence."
+    ),
+    "dfwb-torch": (
+        "dfwb-torch: small, standalone PyTorch utilities for media forensics. Three stages, "
+        "each ticking green in turn: PyTorch layers (standalone, no DFWB required), the SRM "
+        "filter bank (dfwb-torch-srm, fixed high-pass kernels) and the optional DFWB plugin "
+        "(registered as a layers plugin when DFWB is installed)."
+    ),
+}
 
 
 def _panel(width: float, height: float, theme: Theme, fill: str | None = None) -> str:
@@ -66,11 +111,11 @@ def check(cx: float, cy: float, size: float, colour: str, width: float = 1.8) ->
     )
 
 
-def _timeline_css(loop: float) -> str:
+def _timeline_css(loop: float, stage_count: int = len(STAGES)) -> str:
     """Stage k ticks at 0.8 + k s; the link to the next stage lights 0.45 s later."""
     rules: list[str] = []
     end_hold, end_fade = 92, 96
-    for k in range(len(STAGES)):
+    for k in range(stage_count):
         tick = (0.8 + k) / loop * 100
         link = (1.25 + k) / loop * 100
         for name, at in ((f"k{k}", tick), (f"l{k}", link)):
@@ -103,7 +148,18 @@ CARD_GAP = 8
 HERO_WIDE = HeroLayout(3 * CARD_W + 2 * CARD_GAP, 320, 40, 44, 108, 19, 144)
 
 
-def hero(tokens: Tokens, theme: Theme, layout: HeroLayout, ledger: Ledger, asset: str) -> str:
+def _hero(
+    tokens: Tokens,
+    theme: Theme,
+    layout: HeroLayout,
+    ledger: Ledger,
+    asset: str,
+    *,
+    heading: str,
+    tagline: str,
+    stages: tuple[tuple[str, tuple[str, str]], ...],
+    desc: str,
+) -> str:
     f = tokens.fonts
     scale = min(1.0, tokens.desktop_px / layout.width)
     c = Canvas(asset, layout.width, layout.height, ledger=ledger, bg=theme.bg, min_scale=scale)
@@ -115,14 +171,14 @@ def hero(tokens: Tokens, theme: Theme, layout: HeroLayout, ledger: Ledger, asset
     w, pad = layout.width, layout.pad
     parts = [_panel(w, layout.height, theme)]
     parts.append(c.text("github.com/dfwb-research", pad, pad + 4, "e"))
-    parts.append(c.text(TITLE, pad, layout.title_y, "h"))
-    parts.append(c.text(TAGLINE, pad, layout.tagline_y, "g"))
+    parts.append(c.text(heading, pad, layout.title_y, "h"))
+    parts.append(c.text(tagline, pad, layout.tagline_y, "g"))
 
-    spacing = (w - 2 * pad - 160) / (len(STAGES) - 1)
-    nodes = [(pad + 80 + i * spacing, 212) for i in range(len(STAGES))]
+    spacing = (w - 2 * pad - 160) / (len(stages) - 1)
+    nodes = [(pad + 80 + i * spacing, 212) for i in range(len(stages))]
     r = 10
     # The chain: neutral links, and green overlays that light as each stage verifies.
-    for k in range(len(STAGES) - 1):
+    for k in range(len(stages) - 1):
         (x0, y0), (x1, _) = nodes[k], nodes[k + 1]
         seg = f"M{fmt(x0 + r + 6)} {fmt(y0)}H{fmt(x1 - r - 6)}"
         parts.append(el("path", {"d": seg, "stroke": theme.hairline_strong, "stroke-width": "1"}))
@@ -132,7 +188,7 @@ def hero(tokens: Tokens, theme: Theme, layout: HeroLayout, ledger: Ledger, asset
                 {"d": seg, "stroke": theme.verified, "stroke-width": "1.5", "class": f"l{k}"},
             )
         )
-    for k, ((name, sub), (x, y)) in enumerate(zip(STAGES, nodes, strict=True)):
+    for k, ((name, sub), (x, y)) in enumerate(zip(stages, nodes, strict=True)):
         parts.append(
             el(
                 "circle",
@@ -168,10 +224,42 @@ def hero(tokens: Tokens, theme: Theme, layout: HeroLayout, ledger: Ledger, asset
         parts.append(c.text(sub[0], x, y + 68, "u", anchor="middle"))
         parts.append(c.text(sub[1], x, y + 86, "u", anchor="middle"))
     return c.render(
-        title=f"{TITLE}. {TAGLINE}",
-        desc=HERO_DESC,
+        title=f"{heading}. {tagline}",
+        desc=desc,
         body="".join(parts),
-        extra_css=_timeline_css(tokens.loop_s),
+        extra_css=_timeline_css(tokens.loop_s, len(stages)),
+    )
+
+
+def hero(tokens: Tokens, theme: Theme, layout: HeroLayout, ledger: Ledger, asset: str) -> str:
+    return _hero(
+        tokens,
+        theme,
+        layout,
+        ledger,
+        asset,
+        heading=TITLE,
+        tagline=TAGLINE,
+        stages=STAGES,
+        desc=HERO_DESC,
+    )
+
+
+def repo_hero(
+    tokens: Tokens, theme: Theme, layout: HeroLayout, ledger: Ledger, asset: str, repo: str
+) -> str:
+    """The hero for one package repository: same design, that package's own content."""
+    package = next(p for p in data.packages() if p.repo == repo)
+    return _hero(
+        tokens,
+        theme,
+        layout,
+        ledger,
+        asset,
+        heading=package.title,
+        tagline=REPO_TAGLINES[repo],
+        stages=REPO_STAGES[repo],
+        desc=REPO_HERO_DESC[repo],
     )
 
 

@@ -23,6 +23,20 @@ MAINTAINER_ID = 82789246
 MAINTAINER_LOGIN = "lukegcollins"
 
 DATASET_STATUS = ("released", "in preparation")
+DATASET_REQUIRED = (
+    "name",
+    "modality",
+    "protocol_version",
+    "terms",
+    "status",
+    "real",
+    "fake",
+    "methods",
+    "default_protocol",
+    "rights_cleared",
+)
+DATASET_OPTIONAL = ("repository", "year", "subjects", "variants", "variants_of")
+VARIANTS_OF = ("fakes", "reals")
 MODALITIES = ("video", "image", "audio", "audio-visual")
 ADAPTER_STATUS = ("released", "in progress", "planned")
 
@@ -41,11 +55,27 @@ class Package:
 
 @dataclass(frozen=True)
 class Dataset:
+    """One row of the dataset table: the facts dfwb-protocols' own README table shows."""
+
     name: str
     modality: str
     protocol_version: str
     terms: str
     status: str
+    real: int
+    fake: int
+    methods: tuple[str, ...]
+    default_protocol: str
+    rights_cleared: bool
+    repository: str | None = None
+    year: int | None = None
+    subjects: int | None = None
+    variants: tuple[str, ...] = ()
+    variants_of: str | None = None
+
+    @property
+    def total(self) -> int:
+        return self.real + self.fake
 
 
 @dataclass(frozen=True)
@@ -129,15 +159,89 @@ def packages() -> list[Package]:
     ]
 
 
+def _count(where: str, field: str, value: object, *, optional: bool = False) -> int | None:
+    """A whole number of at least zero (a bool is not one); ``None`` only if ``optional``."""
+    if value is None and optional:
+        return None
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise DataError(f"{where}: `{field}` must be a whole number, not {value!r}")
+    return value
+
+
+def _names(where: str, field: str, value: object, *, optional: bool = False) -> tuple[str, ...]:
+    """A list of distinct, non-empty strings; an absent optional list is empty."""
+    if value is None and optional:
+        return ()
+    if (
+        not isinstance(value, list)
+        or not value
+        or not all(isinstance(v, str) and v.strip() for v in value)
+        or len(set(value)) != len(value)
+    ):
+        raise DataError(f"{where}: `{field}` must be a list of distinct names, not {value!r}")
+    return tuple(v.strip() for v in value)
+
+
+def _dataset(index: int, row: object) -> Dataset:
+    where = f"datasets.yml: row {index + 1}"
+    if not isinstance(row, dict) or not (
+        set(DATASET_REQUIRED) <= set(row) <= {*DATASET_REQUIRED, *DATASET_OPTIONAL}
+    ):
+        raise DataError(
+            f"{where} needs exactly {', '.join(DATASET_REQUIRED)}, and may add "
+            f"{', '.join(DATASET_OPTIONAL)}"
+        )
+    text = {k: str(row[k]).strip() for k in ("name", "modality", "protocol_version", "status")}
+    where = f"datasets.yml: {text['name']}"
+    if text["modality"] not in MODALITIES or text["status"] not in DATASET_STATUS:
+        raise DataError(f"{where} has an unknown modality or status")
+    terms = str(row["terms"]).strip()
+    if not terms.startswith("https://"):
+        raise DataError(f"{where} needs an https:// link to the owner's terms")
+    repository = row.get("repository")
+    if repository is not None and not str(repository).startswith("https://"):
+        raise DataError(f"{where}: `repository` must be an https:// link to the owner's page")
+    year = row.get("year")
+    if year is not None and (isinstance(year, bool) or not isinstance(year, int)):
+        raise DataError(f"{where}: `year` must be a year, not {year!r}")
+    default_protocol = row["default_protocol"]
+    if not isinstance(default_protocol, str) or not default_protocol.strip():
+        raise DataError(f"{where}: `default_protocol` must name the default scheme")
+    rights_cleared = row["rights_cleared"]
+    if not isinstance(rights_cleared, bool):
+        raise DataError(f"{where}: `rights_cleared` must be true or false")
+    if text["status"] == "released" and not rights_cleared:
+        raise DataError(f"{where} is released, so its rights must be cleared")
+    variants = _names(where, "variants", row.get("variants"), optional=True)
+    variants_of = row.get("variants_of")
+    if variants_of is not None and (variants_of not in VARIANTS_OF or not variants):
+        raise DataError(
+            f"{where}: `variants_of` is {' or '.join(VARIANTS_OF)}, and needs `variants`"
+        )
+    return Dataset(
+        name=text["name"],
+        modality=text["modality"],
+        protocol_version=text["protocol_version"],
+        terms=terms,
+        status=text["status"],
+        real=_count(where, "real", row["real"]) or 0,
+        fake=_count(where, "fake", row["fake"]) or 0,
+        methods=_names(where, "methods", row["methods"]),
+        default_protocol=default_protocol.strip(),
+        rights_cleared=rights_cleared,
+        repository=None if repository is None else str(repository),
+        year=year,
+        subjects=_count(where, "subjects", row.get("subjects"), optional=True),
+        variants=variants,
+        variants_of=variants_of,
+    )
+
+
 def datasets() -> list[Dataset]:
-    fields = ("name", "modality", "protocol_version", "terms", "status")
-    out = [Dataset(**row) for row in _rows("datasets.yml", "datasets", fields)]
-    for d in out:
-        if d.modality not in MODALITIES or d.status not in DATASET_STATUS:
-            raise DataError(f"datasets.yml: {d.name} has an unknown modality or status")
-        if not d.terms.startswith("https://"):
-            raise DataError(f"datasets.yml: {d.name} needs an https:// link to the owner's terms")
-    return out
+    rows = _load_yaml("datasets.yml").get("datasets") or []
+    if not isinstance(rows, list):
+        raise DataError("datasets.yml: `datasets` must be a list")
+    return [_dataset(index, row) for index, row in enumerate(rows)]
 
 
 def detectors() -> list[Detector]:
