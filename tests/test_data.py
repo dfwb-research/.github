@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+import yaml
 from dfwb import data
 
 
@@ -14,7 +15,19 @@ def test_committed_data_files_parse() -> None:
         "dfwb-protocols",
         "dfwb-torch",
     ]
-    assert data.datasets() == []
+    datasets = data.datasets()
+    assert [d.name for d in datasets] == sorted((d.name for d in datasets), key=str.casefold)
+    assert len(datasets) == 21
+    assert all(d.status == "in preparation" for d in datasets)
+    assert not any(d.rights_cleared for d in datasets)
+    assert all(d.terms.startswith("https://") for d in datasets)
+    uadfv = next(d for d in datasets if d.name == "UADFV")
+    form = (
+        "https://docs.google.com/forms/d/e/"
+        "1FAIpQLScKPoOv15TIZ9Mn0nGScIVgKRM9tFWOmjh9eHKx57Yp-XcnxA/viewform"
+    )
+    assert uadfv.repository == uadfv.terms == form
+    assert (uadfv.real, uadfv.fake, uadfv.total, uadfv.methods) == (49, 49, 98, ("faceswap",))
     assert data.detectors() == []
     assert data.load_state().status_verified
 
@@ -22,9 +35,7 @@ def test_committed_data_files_parse() -> None:
 def test_bad_rows_are_rejected(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(data, "DATA", tmp_path)
     (tmp_path / "datasets.yml").write_text(
-        "datasets:\n  - name: X\n    modality: hologram\n    protocol_version: '1'\n"
-        "    terms: https://example.org\n    status: released\n",
-        encoding="utf-8",
+        yaml.safe_dump({"datasets": [{**GOOD_ROW, "modality": "hologram"}]}), encoding="utf-8"
     )
     with pytest.raises(data.DataError, match="modality"):
         data.datasets()
@@ -45,3 +56,63 @@ def test_state_round_trips(tmp_path: Path) -> None:
     loaded = data.load_state(path)
     assert loaded.live == state.live and loaded.citations == state.citations
     assert [c.login for c in loaded.contributors] == ["amy", "zed"]
+
+
+GOOD_ROW = {
+    "name": "X",
+    "repository": "https://example.org/x",
+    "year": 2020,
+    "modality": "video",
+    "real": 2,
+    "fake": 3,
+    "subjects": None,
+    "methods": ["a", "b"],
+    "variants": ["raw", "c23"],
+    "variants_of": None,
+    "default_protocol": "official",
+    "rights_cleared": False,
+    "protocol_version": "1.0",
+    "terms": "https://example.org/terms",
+    "status": "in preparation",
+}
+
+
+@pytest.mark.parametrize(
+    ("change", "problem"),
+    [
+        ({"real": "2"}, "real"),
+        ({"fake": True}, "fake"),
+        ({"subjects": -1}, "subjects"),
+        ({"year": "2020"}, "year"),
+        ({"methods": []}, "methods"),
+        ({"methods": ["a", "a"]}, "methods"),
+        ({"variants": ["raw", "raw"]}, "variants"),
+        ({"variants": None, "variants_of": "fakes"}, "variants_of"),
+        ({"variants_of": "everyone"}, "variants_of"),
+        ({"repository": "http://example.org/x"}, "repository"),
+        ({"rights_cleared": "no"}, "rights_cleared"),
+        ({"status": "released"}, "rights"),
+        ({"default_protocol": ""}, "default_protocol"),
+        ({"colour": "green"}, "exactly"),
+    ],
+)
+def test_bad_dataset_rows_are_rejected(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, change: dict[str, object], problem: str
+) -> None:
+    monkeypatch.setattr(data, "DATA", tmp_path)
+    (tmp_path / "datasets.yml").write_text(
+        yaml.safe_dump({"datasets": [{**GOOD_ROW, **change}]}), encoding="utf-8"
+    )
+    with pytest.raises(data.DataError, match=problem):
+        data.datasets()
+
+
+def test_optional_dataset_fields_may_be_left_out(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(data, "DATA", tmp_path)
+    row = {k: v for k, v in GOOD_ROW.items() if k not in data.DATASET_OPTIONAL}
+    (tmp_path / "datasets.yml").write_text(yaml.safe_dump({"datasets": [row]}), encoding="utf-8")
+    (dataset,) = data.datasets()
+    assert (dataset.repository, dataset.year, dataset.subjects) == (None, None, None)
+    assert (dataset.variants, dataset.variants_of, dataset.total) == ((), None, 5)

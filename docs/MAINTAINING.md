@@ -10,9 +10,10 @@ between the markers, and every image in `profile/assets/`, comes from the build.
 | `design/avatar.svg` | The organisation avatar, "df" over "wb" as outlines. Built with the rest. |
 | `design/fonts/` | IBM Plex Sans and Mono, unmodified from `google/fonts`, with the OFL. The images embed subsets renamed as the OFL requires for the Reserved Font Name "Plex". |
 | `profile/data/packages.yml` | The package cards. Set `pypi` once a package is on PyPI under that name. |
-| `profile/data/datasets.yml`, `zoo.yml` | The dataset and detector tables. Add rows only from the packages' own registries. |
+| `profile/data/datasets.yml`, `zoo.yml` | The dataset and detector tables. Add rows only from the packages' own registries. A dataset row carries the facts of dfwb-protocols' own README table, which that repository generates from its pack; keep the two in step, cell for cell. |
 | `profile/data/state.json` | Written by the refresh: live package facts, citations, contributors, the status date. |
 | `profile/data/avatars/` | Avatars the images embed, cached by GitHub user id. |
+| `repos/<repo>/hero-light.svg`, `hero-dark.svg` | One hero per package repository, same "Verified mono" design as the organisation hero. Copy both into that repository. |
 | `scripts/build_profile.py` | Rebuilds the images and README blocks from the files above. |
 | `scripts/refresh_profile.py` | Fetches the live facts, rebuilds, validates, writes. |
 
