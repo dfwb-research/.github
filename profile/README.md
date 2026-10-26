@@ -89,5 +89,5 @@ Contributions are welcome! Check out our [contributing guidelines](https://githu
 This work was supported by a [DUPR Scholarship](https://www.deakin.edu.au) and partially funded by [Dynamis Group](https://dynamisgroup.com.au). We also gratefully acknowledge the authors and contributors of the associated modules, packages, datasets, and detectors utilised in this research; we make no claims of ownership regarding these external resources.
 
 <!-- STATUS:START -->
-<p align="right"><samp>status verified 2026-09-25</samp></p>
+<p align="right"><samp>status verified 2026-10-26</samp></p>
 <!-- STATUS:END -->
